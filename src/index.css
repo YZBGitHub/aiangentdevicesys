@@ -1,7 +1,37 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
 @theme {
   --animate-blob: blob 7s infinite;
+  /* UUSIMA Brand Colors */
+  --color-brand-coral: #E85D3A;
+  --color-brand-amber: #F5A623;
+  --color-brand-sky: #4A90D9;
+  --color-brand-jade: #27AE60;
+  --color-brand-ink: #1A1A2E;
+  --color-brand-warm: #FAFAF8;
+}
+
+:root {
+  --brand-coral: #E85D3A;
+  --brand-amber: #F5A623;
+  --brand-sky: #4A90D9;
+  --brand-jade: #27AE60;
+  --brand-ink: #1A1A2E;
+  --brand-warm: #FAFAF8;
+}
+
+body {
+  font-family: 'Noto Sans SC', 'Outfit', system-ui, sans-serif;
+  background-color: var(--brand-warm);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', 'Noto Sans SC', system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: 'Outfit', 'Noto Sans SC', system-ui, sans-serif;
 }
 
 @keyframes blob {
@@ -23,6 +53,120 @@
   animation-delay: 2s;
 }
 
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
 .animation-delay-4000 {
   animation-delay: 4s;
+}
+
+/* ============================================
+   首页装饰性工具类
+   ============================================ */
+
+/* 浮动动画 */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-16px); }
+}
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-24px) rotate(3deg); }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+/* 网格背景 */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.bg-grid-pattern-light {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* 渐变微光条 */
+.shimmer-line {
+  background: linear-gradient(90deg, transparent 0%, rgba(232,93,58,0.15) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+/* 卡片悬浮交互 */
+.card-lift {
+  transition: transform 0.35s cubic-bezier(.22,1,.36,1), box-shadow 0.35s cubic-bezier(.22,1,.36,1);
+}
+.card-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px -10px rgba(0,0,0,0.12), 0 8px 20px -8px rgba(0,0,0,0.06);
+}
+
+/* 序号装饰 */
+.ordinal-ring {
+  position: relative;
+}
+.ordinal-ring::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  opacity: 0.15;
+  animation: pulse-ring 2.5s ease-out infinite;
+}
+
+/* 分割线装饰 */
+.divider-gradient {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--brand-coral) 20%, var(--brand-amber) 50%, var(--brand-sky) 80%, transparent 100%);
+  opacity: 0.3;
+}
+
+/* 角标装饰 */
+.corner-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 60px;
+  border-top: 3px solid var(--brand-coral);
+  border-left: 3px solid var(--brand-coral);
+  border-radius: 12px 0 0 0;
+  opacity: 0.4;
+}
+
+/* Custom scrollbar matching brand */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--brand-coral);
+  border-radius: 999px;
+  opacity: 0.4;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #c94a2e;
 }

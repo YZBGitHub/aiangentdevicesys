@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Plus, Trash2, Edit, Settings, Video, Cpu, AlertTriangle, CheckCircle2, XCircle, Clock, Activity, FolderTree, LayoutGrid, List, ChevronRight, ChevronDown, Filter } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, Settings, Video, Cpu, AlertTriangle, CheckCircle2, XCircle, Clock, Activity, FolderTree, LayoutGrid, List, ChevronRight, ChevronDown, Filter, FileText, ArrowRightLeft } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const labs = [
@@ -24,10 +24,20 @@ const labs = [
   { id: 18, name: '智慧医疗实验室', asset: 'A栋-501', isAI: true, isOnline: true, hasLiveView: false, recentUse: '3小时前', recentDuration: '2.5小时', rank: 17, warning: false, agentCount: 20, image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80' },
 ];
 
-const terminals = [
-  { id: 1, ip: '192.168.1.101', model: 'NL-AGENT-V1', recentTime: '2026-03-28 10:00', recentUser: 'student_01', lab: '物联网综合实训室', totalTime: '120h', bootCount: 45 },
-  { id: 2, ip: '192.168.1.102', model: 'NL-AGENT-V1', recentTime: '2026-03-28 09:30', recentUser: 'student_02', lab: '物联网综合实训室', totalTime: '98h', bootCount: 32 },
-  { id: 3, ip: '192.168.2.50', model: 'NL-AGENT-PRO', recentTime: '2026-03-27 14:00', recentUser: 'teacher_li', lab: '人工智能基础实验室', totalTime: '250h', bootCount: 120 },
+const initialTerminals = [
+  { id: 1, ip: '192.168.1.101', model: 'NL-AGENT-V1', recentTime: '2026-03-28 10:00', recentUser: 'student_01', lab: '物联网综合实训室', totalTime: '120h', bootCount: 45, isOnline: true },
+  { id: 2, ip: '192.168.1.102', model: 'NL-AGENT-V1', recentTime: '2026-03-28 09:30', recentUser: 'student_02', lab: '物联网综合实训室', totalTime: '98h', bootCount: 32, isOnline: true },
+  { id: 3, ip: '192.168.2.50', model: 'NL-AGENT-PRO', recentTime: '2026-03-27 14:00', recentUser: 'teacher_li', lab: '人工智能基础实验室', totalTime: '250h', bootCount: 120, isOnline: false },
+  { id: 4, ip: '192.168.3.10', model: 'NL-AGENT-V2', recentTime: '2026-03-29 08:15', recentUser: 'student_03', lab: '大数据分析实训室', totalTime: '55h', bootCount: 15, isOnline: true },
+  { id: 5, ip: '192.168.3.11', model: 'NL-AGENT-V2', recentTime: '2026-03-26 16:20', recentUser: 'student_04', lab: '大数据分析实训室', totalTime: '60h', bootCount: 20, isOnline: false },
+];
+
+const mockLogs = [
+  { id: 1, time: '2026-03-28 10:00', type: '上线', duration: '-', text: '设备成功接入管理网络' },
+  { id: 2, time: '2026-03-28 14:30', type: '下线', duration: '4小时30分', text: '设备主动断开连接' },
+  { id: 3, time: '2026-03-29 08:00', type: '开机', duration: '-', text: '系统启动，完成硬件自检' },
+  { id: 4, time: '2026-03-29 08:05', type: '上线', duration: '-', text: '设备成功接入管理网络' },
+  { id: 5, time: '2026-03-29 11:20', type: '异常', duration: '-', text: '检测到 CPU 温度过高 (85°C)' },
 ];
 
 const initialAssets = [
@@ -45,8 +55,17 @@ export default function AILab() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('usage');
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [visibleCount, setVisibleCount] = useState(18);
   const [selectedLiveLab, setSelectedLiveLab] = useState<any>(null);
+
+  // Terminal Management State
+  const [terminalsList, setTerminalsList] = useState(initialTerminals);
+  const [terminalSortBy, setTerminalSortBy] = useState<'recent' | 'total' | 'boot'>('recent');
+  const [selectedTerminalTreeIds, setSelectedTerminalTreeIds] = useState<string[]>([]);
+  const [terminalOnlineStatus, setTerminalOnlineStatus] = useState<'all'|'online'|'offline'>('all');
+  const [terminalTimeRange, setTerminalTimeRange] = useState<'all'|'today'|'week'>('all');
+  const [terminalLogModalData, setTerminalLogModalData] = useState<any>(null);
+  const [changeLabModalData, setChangeLabModalData] = useState<any>(null);
 
   // Asset Management State
   const [assets, setAssets] = useState(initialAssets);
@@ -59,6 +78,13 @@ export default function AILab() {
   const [isAssetTreeOpen, setIsAssetTreeOpen] = useState(false);
   const [selectedAssetIds, setSelectedAssetIds] = useState<number[]>([]);
   const [expandedAssetIds, setExpandedAssetIds] = useState<number[]>([1, 4]);
+  const [expandedAssetTableIds, setExpandedAssetTableIds] = useState<number[]>([]);
+
+  // Initialize expandedAssetTableIds to all parents to default expand the list
+  useEffect(() => {
+    const parentIds = Array.from(new Set(initialAssets.map(a => a.parentId).filter(Boolean))) as number[];
+    setExpandedAssetTableIds(parentIds);
+  }, []);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -120,6 +146,12 @@ export default function AILab() {
     );
   };
 
+  const toggleAssetTableExpanded = (id: number) => {
+    setExpandedAssetTableIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
   const toggleAssetExpansion = (id: number) => {
     setExpandedAssetIds(prev => 
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
@@ -137,12 +169,20 @@ export default function AILab() {
           const isExpanded = expandedAssetIds.includes(asset.id);
           const isSelected = selectedAssetIds.includes(asset.id);
 
+          const getDescendants = (pId: number): number[] => {
+            const kids = assets.filter(x => x.parentId === pId).map(x => x.id);
+            return [...kids, ...kids.flatMap(getDescendants)];
+          };
+          const relatedIds = [asset.id, ...getDescendants(asset.id)];
+          const relatedNames = relatedIds.map(id => assets.find(a => a.id === id)?.name).filter(Boolean) as string[];
+          const labCount = labs.filter(lab => relatedNames.some(name => lab.asset.includes(name) || lab.name.includes(name))).length;
+
           return (
             <div key={asset.id}>
               <div 
                 className={cn(
                   "flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors group",
-                  isSelected ? "bg-purple-50 text-purple-700" : "hover:bg-slate-50 text-slate-600"
+                  isSelected ? "bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] font-black" : "hover:bg-slate-50 text-slate-600"
                 )}
                 onClick={() => toggleAssetSelection(asset.id)}
               >
@@ -163,10 +203,11 @@ export default function AILab() {
                   type="checkbox" 
                   checked={isSelected} 
                   onChange={() => {}} 
-                  className="w-3.5 h-3.5 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                  className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/50"
                   onClick={(e) => e.stopPropagation()}
                 />
-                <span className="text-sm font-medium">{asset.name}</span>
+                <span className="text-sm flex-1 truncate">{asset.name}</span>
+                <span className="text-xs bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-medium">{labCount}</span>
               </div>
               {hasChildren && isExpanded && renderAssetTree(asset.id, level + 1)}
             </div>
@@ -178,16 +219,168 @@ export default function AILab() {
 
   const filteredLabs = labs.filter(lab => {
     const matchesSearch = lab.name.includes(searchQuery) || lab.asset.includes(searchQuery);
-    const matchesAssets = selectedAssetIds.length === 0 || selectedAssetIds.some(id => {
-      const asset = assets.find(a => a.id === id);
-      return asset && (lab.asset.includes(asset.name) || lab.name.includes(asset.name));
-    });
+    
+    let matchesAssets = selectedAssetIds.length === 0;
+    if (!matchesAssets) {
+      const getDescendants = (pId: number): number[] => {
+        const kids = assets.filter(x => x.parentId === pId).map(x => x.id);
+        return [...kids, ...kids.flatMap(getDescendants)];
+      };
+      let allSelectedIds: number[] = [];
+      selectedAssetIds.forEach(id => {
+        allSelectedIds = [...allSelectedIds, id, ...getDescendants(id)];
+      });
+      const relatedNames = allSelectedIds.map(id => assets.find(a => a.id === id)?.name).filter(Boolean) as string[];
+      matchesAssets = relatedNames.some(name => lab.asset.includes(name) || lab.name.includes(name));
+    }
+    
     return matchesSearch && matchesAssets;
   }).sort((a, b) => {
     if (sortBy === 'usage') return a.rank - b.rank;
     if (sortBy === 'duration') return parseFloat(b.recentDuration) - parseFloat(a.recentDuration);
     return 0; // Default or recent
   });
+
+  const toggleTerminalTreeSelection = (idStr: string) => {
+    setSelectedTerminalTreeIds(prev => prev.includes(idStr) ? prev.filter(i => i !== idStr) : [...prev, idStr]);
+  };
+
+  const renderMixedTreeForTerminals = (parentId: number | null = null, level = 0) => {
+    const childAssets = assets.filter(a => a.parentId === parentId);
+    let childLabs: any[] = [];
+    if (parentId !== null) {
+      const pAsset = assets.find(a => a.id === parentId);
+      if (pAsset) {
+        childLabs = labs.filter(l => (l.asset.includes(pAsset.name) || l.name.includes(pAsset.name)));
+      }
+    }
+    if (childAssets.length === 0 && childLabs.length === 0) return null;
+
+    return (
+      <div className={cn("space-y-1", level > 0 && "ml-4 border-l border-slate-100 pl-2 mt-1")}>
+        {childAssets.map(asset => {
+          const isSelected = selectedTerminalTreeIds.includes(`a_${asset.id}`);
+          return (
+            <div key={`a_${asset.id}`}>
+              <div 
+                className={cn("flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors", isSelected ? "bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] font-bold" : "hover:bg-slate-50 text-slate-600")}
+                onClick={() => toggleTerminalTreeSelection(`a_${asset.id}`)}
+              >
+                <input type="checkbox" checked={isSelected} readOnly className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)]" onClick={(e) => e.stopPropagation()}/>
+                <FolderTree className="w-3.5 h-3.5" />
+                <span className="text-sm flex-1 truncate">{asset.name}</span>
+              </div>
+              {renderMixedTreeForTerminals(asset.id, level + 1)}
+            </div>
+          );
+        })}
+        {childLabs.map(lab => {
+          const isSelected = selectedTerminalTreeIds.includes(`l_${lab.id}`);
+          return (
+            <div key={`l_${lab.id}`} className={cn("flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors ml-4", isSelected ? "bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] font-bold" : "hover:bg-slate-50 text-slate-500")} onClick={() => toggleTerminalTreeSelection(`l_${lab.id}`)}>
+              <input type="checkbox" checked={isSelected} readOnly className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/50" onClick={(e) => e.stopPropagation()}/>
+              <span className="text-sm truncate opacity-90">{lab.name}</span>
+            </div>
+          )
+        })}
+      </div>
+    );
+  };
+
+  const handleChangeLabSubmit = (newLabName: string) => {
+    setTerminalsList(prev => prev.map(t => t.id === changeLabModalData.id ? { ...t, lab: newLabName } : t));
+    setChangeLabModalData(null);
+  };
+
+  const filteredTerminals = terminalsList.filter(term => {
+    const matchesSearch = term.ip.includes(searchQuery) || term.model.includes(searchQuery) || term.lab.includes(searchQuery) || term.recentUser.includes(searchQuery);
+    
+    const matchesStatus = terminalOnlineStatus === 'all' || 
+                          (terminalOnlineStatus === 'online' && term.isOnline) ||
+                          (terminalOnlineStatus === 'offline' && !term.isOnline);
+    
+    const matchesTime = terminalTimeRange === 'all' || true; // Placeholder filter logic
+    
+    let matchesTree = true;
+    if (selectedTerminalTreeIds.length > 0) {
+      const termLabObj = labs.find(l => l.name === term.lab);
+      if (termLabObj) {
+        const isLabExplicitlySelect = selectedTerminalTreeIds.includes(`l_${termLabObj.id}`);
+        const belongsToSelectedAsset = selectedTerminalTreeIds.some(idStr => {
+          if (idStr.startsWith('a_')) {
+            const assetId = Number(idStr.replace('a_', ''));
+            const getDescendants = (pId: number): number[] => {
+              const kids = assets.filter(x => x.parentId === pId).map(x => x.id);
+              return [...kids, ...kids.flatMap(getDescendants)];
+            };
+            const relatedIds = [assetId, ...getDescendants(assetId)];
+            const relatedNames = relatedIds.map(rId => assets.find(a => a.id === rId)?.name).filter(Boolean) as string[];
+            return relatedNames.some(name => termLabObj.asset.includes(name) || termLabObj.name.includes(name));
+          }
+          return false;
+        });
+        matchesTree = isLabExplicitlySelect || belongsToSelectedAsset;
+      } else {
+        matchesTree = false;
+      }
+    }
+
+    return matchesSearch && matchesTree && matchesStatus && matchesTime;
+  }).sort((a, b) => {
+    if (terminalSortBy === 'boot') return b.bootCount - a.bootCount;
+    if (terminalSortBy === 'total') return parseFloat(b.totalTime) - parseFloat(a.totalTime);
+    return 0;
+  });
+
+  const renderAssetTableRows = (parentId: number | null = null, level = 0) => {
+    // If searching, flatten tree and display linear results
+    let nodesToRender = [];
+    
+    if (assetSearchQuery) {
+      if (level > 0) return []; // Only render on root level
+      nodesToRender = filteredAssets;
+    } else {
+      nodesToRender = assets.filter(a => a.parentId === parentId);
+    }
+
+    if (nodesToRender.length === 0) return [];
+
+    return nodesToRender.flatMap(asset => {
+      const hasChildren = !assetSearchQuery && assets.some(a => a.parentId === asset.id);
+      const isExpanded = expandedAssetTableIds.includes(asset.id);
+      
+      const row = (
+        <tr key={asset.id} className="hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-none">
+          <td className="px-6 py-4 font-medium text-slate-900 flex items-center gap-2">
+            <div style={{ width: assetSearchQuery ? 0 : level * 20 }} className="shrink-0" />
+            {hasChildren ? (
+              <button 
+                onClick={(e) => { e.stopPropagation(); toggleAssetTableExpanded(asset.id); }}
+                className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-200 text-slate-500 transition-colors"
+              >
+                <ChevronRight className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-90")} />
+              </button>
+            ) : (
+              <div className="w-5" />
+            )}
+            <FolderTree className="w-4 h-4 text-slate-400" />
+            {asset.name}
+          </td>
+          <td className="px-6 py-4 text-slate-600">
+            {getParentName(asset.parentId)}
+          </td>
+          <td className="px-6 py-4 text-slate-500">{asset.remarks || '-'}</td>
+          <td className="px-6 py-4 text-right">
+            <button onClick={() => handleOpenAssetModal(asset)} className="text-purple-600 hover:text-purple-700 font-medium mr-4">修改</button>
+            <button onClick={() => handleDeleteAsset(asset.id)} className="text-red-600 hover:text-red-700 font-medium">删除</button>
+          </td>
+        </tr>
+      );
+
+      const childrenRows = (hasChildren && isExpanded && !assetSearchQuery) ? renderAssetTableRows(asset.id, level + 1) : [];
+      return [row, ...childrenRows];
+    });
+  };
 
   return (
     <div className="flex flex-col h-full bg-white overflow-hidden">
@@ -206,37 +399,37 @@ export default function AILab() {
             <button
               onClick={() => setActiveTab('labs')}
               className={cn(
-                "pb-4 text-lg font-medium transition-colors relative",
-                activeTab === 'labs' ? "text-purple-600" : "text-slate-500 hover:text-slate-900"
+                "pb-4 text-lg font-black transition-colors relative",
+                activeTab === 'labs' ? "text-[var(--brand-coral)]" : "text-slate-500 hover:text-slate-900"
               )}
             >
               实训室管理
               {activeTab === 'labs' && (
-                <motion.div layoutId="active-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
+                <motion.div layoutId="active-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-coral)]" />
               )}
             </button>
             <button
               onClick={() => setActiveTab('terminals')}
               className={cn(
-                "pb-4 text-lg font-medium transition-colors relative",
-                activeTab === 'terminals' ? "text-purple-600" : "text-slate-500 hover:text-slate-900"
+                "pb-4 text-lg font-black transition-colors relative",
+                activeTab === 'terminals' ? "text-[var(--brand-coral)]" : "text-slate-500 hover:text-slate-900"
               )}
             >
               终端管理
               {activeTab === 'terminals' && (
-                <motion.div layoutId="active-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
+                <motion.div layoutId="active-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-coral)]" />
               )}
             </button>
             <button
               onClick={() => setActiveTab('assets')}
               className={cn(
-                "pb-4 text-lg font-medium transition-colors relative",
-                activeTab === 'assets' ? "text-purple-600" : "text-slate-500 hover:text-slate-900"
+                "pb-4 text-lg font-black transition-colors relative",
+                activeTab === 'assets' ? "text-[var(--brand-coral)]" : "text-slate-500 hover:text-slate-900"
               )}
             >
               资产管理
               {activeTab === 'assets' && (
-                <motion.div layoutId="active-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
+                <motion.div layoutId="active-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-coral)]" />
               )}
             </button>
           </div>
@@ -255,12 +448,25 @@ export default function AILab() {
               transition={{ duration: 0.2 }}
             >
               {activeTab === 'labs' ? (
-                <div className="space-y-6 pt-6">
-                  {/* Sticky Filter Bar */}
-                  <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md py-4 -mx-4 px-4 rounded-b-2xl">
-                    <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                <div className="flex gap-6 items-start h-full pt-6">
+                  {/* Left Sidebar for Asset Tree */}
+                  <div className="w-64 bg-white border border-slate-200 rounded-2xl p-4 sticky top-6 shrink-0 shadow-sm overflow-hidden flex flex-col max-h-[80vh]">
+                    <div className="flex items-center justify-between mb-4 shrink-0">
+                      <h3 className="text-sm font-bold text-slate-900 border-l-4 border-[var(--brand-coral)] pl-2">资产导航</h3>
+                      {selectedAssetIds.length > 0 && <button onClick={() => setSelectedAssetIds([])} className="text-xs text-[var(--brand-coral)] hover:text-[var(--brand-coral)]/80 font-medium">清除选择</button>}
+                    </div>
+                    <div className="flex-1 overflow-y-auto pr-2">
+                      {renderAssetTree()}
+                    </div>
+                  </div>
+
+                  {/* Right Content */}
+                  <div className="flex-1 space-y-6 min-w-0">
+                    {/* Sticky Filter Bar */}
+                    <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md py-4 -mx-4 px-4 rounded-b-2xl">
+                      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
                       <div className="flex items-center gap-3">
-                        <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors">
+                        <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-[var(--brand-coral)] text-white rounded-xl text-sm font-bold hover:bg-[var(--brand-coral)]/90 transition-all shadow-lg shadow-[var(--brand-coral)]/20">
                           <Plus className="w-4 h-4" /> 新增实训室
                         </button>
                         <div className="h-6 w-px bg-slate-200 mx-1" />
@@ -304,45 +510,6 @@ export default function AILab() {
                         </div>
 
                         <div className="flex items-center gap-2 flex-1 lg:flex-none">
-                          <div className="relative">
-                            <button 
-                              onClick={() => setIsAssetTreeOpen(!isAssetTreeOpen)}
-                              className={cn(
-                                "flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium hover:bg-white transition-all",
-                                selectedAssetIds.length > 0 ? "text-purple-600 border-purple-200 bg-purple-50" : "text-slate-600"
-                              )}
-                            >
-                              <FolderTree className="w-4 h-4" />
-                              {selectedAssetIds.length > 0 ? `已选 ${selectedAssetIds.length} 个资产` : "按资产搜索"}
-                            </button>
-                            
-                            {/* Asset Tree Popover */}
-                            <AnimatePresence>
-                              {isAssetTreeOpen && (
-                                <>
-                                  <div className="fixed inset-0 z-30" onClick={() => setIsAssetTreeOpen(false)} />
-                                  <motion.div 
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 10 }}
-                                    className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 z-40 max-h-96 overflow-y-auto"
-                                  >
-                                    <div className="flex items-center justify-between mb-4">
-                                      <h4 className="text-sm font-bold text-slate-900">资产树选择</h4>
-                                      <button 
-                                        onClick={() => setSelectedAssetIds([])}
-                                        className="text-xs text-purple-600 hover:underline"
-                                      >
-                                        清空
-                                      </button>
-                                    </div>
-                                    {renderAssetTree()}
-                                  </motion.div>
-                                </>
-                              )}
-                            </AnimatePresence>
-                          </div>
-
                           <div className="relative flex-1 lg:w-64">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
@@ -507,65 +674,109 @@ export default function AILab() {
                       </div>
                     </div>
                   )}
+                  </div>
                 </div>
               ) : activeTab === 'terminals' ? (
-              <div className="space-y-6">
-                {/* Terminal Actions & Search */}
-                <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                  <div className="flex items-center gap-4 w-full md:w-auto">
-                    <select className="text-sm border border-slate-200 bg-slate-50 rounded-xl px-3 py-2 focus:ring-2 focus:ring-purple-500 outline-none cursor-pointer">
-                      <option>按最近上线时长排序</option>
-                      <option>按上线总时长排序</option>
-                      <option>按开机次数排序</option>
-                    </select>
+              <div className="flex gap-6 items-start h-full pt-6">
+                {/* Left Sidebar for Mixed Tree */}
+                <div className="w-64 bg-white border border-slate-200 rounded-2xl p-4 sticky top-6 shrink-0 shadow-sm overflow-hidden flex flex-col max-h-[80vh]">
+                  <div className="flex items-center justify-between mb-4 shrink-0">
+                    <h3 className="text-sm font-bold text-slate-900 border-l-4 border-purple-600 pl-2">实训室资产</h3>
+                    {selectedTerminalTreeIds.length > 0 && <button onClick={() => setSelectedTerminalTreeIds([])} className="text-xs text-purple-600 hover:text-purple-700 font-medium">清除选择</button>}
                   </div>
-                  <div className="relative w-full md:w-80">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="搜索终端名称、实训室、资产或账号..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
-                    />
+                  <div className="flex-1 overflow-y-auto pr-2">
+                    {renderMixedTreeForTerminals()}
                   </div>
                 </div>
 
-                {/* Terminals Table */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                {/* Right Content */}
+                <div className="flex-1 space-y-6 min-w-0">
+                  {/* Top Filters */}
+                  <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                    <div className="flex flex-wrap items-center gap-4">
+                      {/* Flat sorting */}
+                      <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                        <button onClick={() => setTerminalSortBy('recent')} className={cn("px-3 py-1.5 text-xs font-medium rounded-lg transition-all", terminalSortBy === 'recent' ? "bg-white shadow-sm text-purple-600" : "text-slate-500 hover:text-slate-700")}>按最近上线</button>
+                        <button onClick={() => setTerminalSortBy('total')} className={cn("px-3 py-1.5 text-xs font-medium rounded-lg transition-all", terminalSortBy === 'total' ? "bg-white shadow-sm text-purple-600" : "text-slate-500 hover:text-slate-700")}>按总时长</button>
+                        <button onClick={() => setTerminalSortBy('boot')} className={cn("px-3 py-1.5 text-xs font-medium rounded-lg transition-all", terminalSortBy === 'boot' ? "bg-white shadow-sm text-purple-600" : "text-slate-500 hover:text-slate-700")}>按开机次数</button>
+                      </div>
+
+                      {/* Status & Time */}
+                      <div className="flex items-center gap-3 border-l border-slate-200 pl-4">
+                        <select value={terminalOnlineStatus} onChange={e => setTerminalOnlineStatus(e.target.value as any)} className="text-sm border border-slate-200 bg-slate-50 rounded-xl px-3 py-2 outline-none focus:ring-1 focus:ring-purple-500">
+                          <option value="all">状态：不限</option>
+                          <option value="online">在线</option>
+                          <option value="offline">离线</option>
+                        </select>
+                        <select value={terminalTimeRange} onChange={e => setTerminalTimeRange(e.target.value as any)} className="text-sm border border-slate-200 bg-slate-50 rounded-xl px-3 py-2 outline-none focus:ring-1 focus:ring-purple-500">
+                          <option value="all">在线时间：不限</option>
+                          <option value="today">今天</option>
+                          <option value="week">最近一周</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="relative w-full md:w-64 ml-auto">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="搜索终端名称、实训室、资产或账号..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Terminals Table */}
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
                       <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-medium">
                         <tr>
-                          <th className="px-6 py-4">终端 IP</th>
-                          <th className="px-6 py-4">型号</th>
+                          <th className="px-6 py-4">状态</th>
+                          <th className="px-6 py-4">终端 IP / 型号</th>
                           <th className="px-6 py-4">归属实训室</th>
-                          <th className="px-6 py-4">最近上线时间</th>
-                          <th className="px-6 py-4">最近账号</th>
-                          <th className="px-6 py-4">总时长</th>
-                          <th className="px-6 py-4">开机次数</th>
+                          <th className="px-6 py-4">最近记录</th>
+                          <th className="px-6 py-4">开机/时长</th>
                           <th className="px-6 py-4 text-right">操作</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {terminals.map(term => (
-                          <tr key={term.id} className="hover:bg-slate-50/50 transition-colors">
-                            <td className="px-6 py-4 font-mono text-slate-900">{term.ip}</td>
-                            <td className="px-6 py-4 text-slate-600">{term.model}</td>
+                        {filteredTerminals.map(term => (
+                          <tr key={term.id} className="hover:bg-slate-50/50 transition-colors group">
+                            <td className="px-6 py-4">
+                              {term.isOnline ? (
+                                <span className="flex items-center gap-1.5 px-2 py-0.5 w-fit bg-emerald-50 text-emerald-600 rounded text-xs font-bold border border-emerald-100"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 在线</span>
+                              ) : (
+                                <span className="px-2 py-0.5 bg-slate-100 text-slate-400 rounded w-fit text-xs font-bold border border-slate-200">离线</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="font-mono text-slate-900 font-bold">{term.ip}</div>
+                              <div className="text-xs text-slate-500">{term.model}</div>
+                            </td>
                             <td className="px-6 py-4 text-slate-900 font-medium">{term.lab}</td>
-                            <td className="px-6 py-4 text-slate-500">{term.recentTime}</td>
-                            <td className="px-6 py-4 text-slate-600">{term.recentUser}</td>
-                            <td className="px-6 py-4 text-slate-600">{term.totalTime}</td>
-                            <td className="px-6 py-4 text-slate-600">{term.bootCount}</td>
+                            <td className="px-6 py-4">
+                              <div className="text-slate-900 text-sm">{term.recentTime}</div>
+                              <div className="text-xs text-slate-500">{term.recentUser}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-slate-900 text-sm">{term.totalTime}</div>
+                              <div className="text-xs text-slate-500">已开机 {term.bootCount} 次</div>
+                            </td>
                             <td className="px-6 py-4 text-right">
-                              <button className="text-purple-600 hover:text-purple-700 font-medium mr-4">日志</button>
-                              <button className="text-blue-600 hover:text-blue-700 font-medium">更改归属</button>
+                              <div className="flex justify-end gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onClick={() => setTerminalLogModalData(term)} className="px-2 py-1.5 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors border border-purple-100 flex items-center gap-1"><FileText className="w-3.5 h-3.5"/> 日志</button>
+                                <button onClick={() => setChangeLabModalData(term)} className="px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-100 flex items-center gap-1"><ArrowRightLeft className="w-3.5 h-3.5"/> 迁移</button>
+                              </div>
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
+                </div>
                 </div>
               </div>
             ) : (
@@ -601,23 +812,10 @@ export default function AILab() {
                           <th className="px-6 py-4 text-right">操作</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {filteredAssets.length > 0 ? filteredAssets.map(asset => (
-                          <tr key={asset.id} className="hover:bg-slate-50/50 transition-colors">
-                            <td className="px-6 py-4 font-medium text-slate-900 flex items-center gap-2">
-                              <FolderTree className="w-4 h-4 text-slate-400" />
-                              {asset.name}
-                            </td>
-                            <td className="px-6 py-4 text-slate-600">
-                              {getParentName(asset.parentId)}
-                            </td>
-                            <td className="px-6 py-4 text-slate-500">{asset.remarks || '-'}</td>
-                            <td className="px-6 py-4 text-right">
-                              <button onClick={() => handleOpenAssetModal(asset)} className="text-purple-600 hover:text-purple-700 font-medium mr-4">修改</button>
-                              <button onClick={() => handleDeleteAsset(asset.id)} className="text-red-600 hover:text-red-700 font-medium">删除</button>
-                            </td>
-                          </tr>
-                        )) : (
+                      <tbody className="divide-y divide-slate-100 border-none">
+                        {filteredAssets.length > 0 ? (
+                          renderAssetTableRows()
+                        ) : (
                           <tr>
                             <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
                               没有找到匹配的资产
@@ -737,6 +935,84 @@ export default function AILab() {
                   </button>
                 </div>
               </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Terminal Log Modal */}
+        <AnimatePresence>
+          {terminalLogModalData && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+                 <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900">设备运行追踪日志 - {terminalLogModalData.ip}</h3>
+                      <p className="text-xs text-slate-500 mt-1">归属：{terminalLogModalData.lab}</p>
+                    </div>
+                    <button onClick={() => setTerminalLogModalData(null)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"><XCircle className="w-5 h-5"/></button>
+                 </div>
+                 <div className="p-4 border-b border-slate-100 flex items-center gap-4 bg-white">
+                   <input type="date" className="text-sm border border-slate-200 px-3 py-1.5 rounded-lg outline-none focus:border-purple-500" />
+                   <span className="text-slate-400 text-sm">至</span>
+                   <input type="date" className="text-sm border border-slate-200 px-3 py-1.5 rounded-lg outline-none focus:border-purple-500" />
+                   <button className="px-4 py-1.5 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">查询</button>
+                 </div>
+                 <div className="flex-1 overflow-y-auto p-0">
+                   <table className="w-full text-left text-sm">
+                     <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-medium sticky top-0">
+                       <tr><th className="px-6 py-3">动作类型</th><th className="px-6 py-3">发生时间</th><th className="px-6 py-3">持续时长</th><th className="px-6 py-3">日志详情</th></tr>
+                     </thead>
+                     <tbody className="divide-y divide-slate-100">
+                       {mockLogs.map(log => (
+                         <tr key={log.id} className="hover:bg-slate-50 transition-colors">
+                           <td className="px-6 py-4">
+                             <span className={cn("px-2 py-1 text-xs font-bold rounded", log.type === '异常' ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600')}>{log.type}</span>
+                           </td>
+                           <td className="px-6 py-4 text-slate-600 font-mono text-xs">{log.time}</td>
+                           <td className="px-6 py-4 text-slate-600">{log.duration}</td>
+                           <td className="px-6 py-4 text-slate-700">{log.text}</td>
+                         </tr>
+                       ))}
+                     </tbody>
+                   </table>
+                 </div>
+                 <div className="p-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500 bg-white">
+                   <span>共 {mockLogs.length} 条记录</span>
+                   <div className="flex gap-2">
+                     <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 opacity-50 cursor-not-allowed">上一页</button>
+                     <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 opacity-50 cursor-not-allowed">下一页</button>
+                   </div>
+                 </div>
+               </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Change Lab Modal */}
+        <AnimatePresence>
+          {changeLabModalData && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+                 <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                   <h3 className="font-bold text-slate-900">更改设备归属</h3>
+                   <button onClick={() => setChangeLabModalData(null)}><XCircle className="w-5 h-5 text-slate-400 hover:text-slate-600"/></button>
+                 </div>
+                 <div className="p-6">
+                   <p className="text-sm text-slate-600 mb-4">将终端 <span className="font-mono font-bold text-slate-900">{changeLabModalData.ip}</span> 跨区迁移至新的实训室：</p>
+                   <select id="newLabSelect" className="w-full px-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
+                     {labs.map(l => (
+                       <option key={l.id} value={l.name}>{l.name} ({l.asset})</option>
+                     ))}
+                   </select>
+                 </div>
+                 <div className="p-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
+                   <button onClick={() => setChangeLabModalData(null)} className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium">取消</button>
+                   <button onClick={() => {
+                     const val = (document.getElementById('newLabSelect') as HTMLSelectElement).value;
+                     handleChangeLabSubmit(val);
+                   }} className="px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 rounded-xl text-sm font-medium">确认迁移</button>
+                 </div>
+               </motion.div>
             </div>
           )}
         </AnimatePresence>
