@@ -697,18 +697,18 @@ export default function AILab() {
                       {/* Flat sorting */}
                       <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
                         <button onClick={() => setTerminalSortBy('recent')} className={cn("px-3 py-1.5 text-xs font-medium rounded-lg transition-all", terminalSortBy === 'recent' ? "bg-white shadow-sm text-purple-600" : "text-slate-500 hover:text-slate-700")}>按最近上线</button>
-                        <button onClick={() => setTerminalSortBy('total')} className={cn("px-3 py-1.5 text-xs font-medium rounded-lg transition-all", terminalSortBy === 'total' ? "bg-white shadow-sm text-purple-600" : "text-slate-500 hover:text-slate-700")}>按总时长</button>
-                        <button onClick={() => setTerminalSortBy('boot')} className={cn("px-3 py-1.5 text-xs font-medium rounded-lg transition-all", terminalSortBy === 'boot' ? "bg-white shadow-sm text-purple-600" : "text-slate-500 hover:text-slate-700")}>按开机次数</button>
+                        <button onClick={() => setTerminalSortBy('total')} className={cn("px-3 py-1.5 text-xs font-black rounded-lg transition-all", terminalSortBy === 'total' ? "bg-white shadow-sm text-[var(--brand-coral)]" : "text-slate-500 hover:text-slate-700")}>按总时长</button>
+                        <button onClick={() => setTerminalSortBy('boot')} className={cn("px-3 py-1.5 text-xs font-black rounded-lg transition-all", terminalSortBy === 'boot' ? "bg-white shadow-sm text-[var(--brand-coral)]" : "text-slate-500 hover:text-slate-700")}>按开机次数</button>
                       </div>
 
                       {/* Status & Time */}
                       <div className="flex items-center gap-3 border-l border-slate-200 pl-4">
-                        <select value={terminalOnlineStatus} onChange={e => setTerminalOnlineStatus(e.target.value as any)} className="text-sm border border-slate-200 bg-slate-50 rounded-xl px-3 py-2 outline-none focus:ring-1 focus:ring-purple-500">
+                        <select value={terminalOnlineStatus} onChange={e => setTerminalOnlineStatus(e.target.value as any)} className="text-sm border border-slate-200 bg-slate-50 rounded-xl px-3 py-2 outline-none focus:ring-1 focus:ring-[var(--brand-coral)]/30">
                           <option value="all">状态：不限</option>
                           <option value="online">在线</option>
                           <option value="offline">离线</option>
                         </select>
-                        <select value={terminalTimeRange} onChange={e => setTerminalTimeRange(e.target.value as any)} className="text-sm border border-slate-200 bg-slate-50 rounded-xl px-3 py-2 outline-none focus:ring-1 focus:ring-purple-500">
+                        <select value={terminalTimeRange} onChange={e => setTerminalTimeRange(e.target.value as any)} className="text-sm border border-slate-200 bg-slate-50 rounded-xl px-3 py-2 outline-none focus:ring-1 focus:ring-[var(--brand-coral)]/30">
                           <option value="all">在线时间：不限</option>
                           <option value="today">今天</option>
                           <option value="week">最近一周</option>
@@ -723,7 +723,7 @@ export default function AILab() {
                         placeholder="搜索终端名称、实训室、资产或账号..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+                        className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/20 focus:bg-white transition-all"
                       />
                     </div>
                   </div>
@@ -767,8 +767,8 @@ export default function AILab() {
                             </td>
                             <td className="px-6 py-4 text-right">
                               <div className="flex justify-end gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => setTerminalLogModalData(term)} className="px-2 py-1.5 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors border border-purple-100 flex items-center gap-1"><FileText className="w-3.5 h-3.5"/> 日志</button>
-                                <button onClick={() => setChangeLabModalData(term)} className="px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-100 flex items-center gap-1"><ArrowRightLeft className="w-3.5 h-3.5"/> 迁移</button>
+                                <button onClick={() => setTerminalLogModalData(term)} className="px-2 py-1.5 text-xs font-bold text-[var(--brand-coral)] bg-[var(--brand-coral)]/5 hover:bg-[var(--brand-coral)]/10 rounded-lg transition-colors border border-[var(--brand-coral)]/10 flex items-center gap-1"><FileText className="w-3.5 h-3.5"/> 日志</button>
+                                <button onClick={() => setChangeLabModalData(term)} className="px-2 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-100 flex items-center gap-1"><ArrowRightLeft className="w-3.5 h-3.5"/> 迁移</button>
                               </div>
                             </td>
                           </tr>
@@ -784,7 +784,7 @@ export default function AILab() {
                 {/* Assets Actions & Search */}
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
                   <div className="flex items-center gap-3">
-                    <button onClick={() => handleOpenAssetModal()} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors">
+                    <button onClick={() => handleOpenAssetModal()} className="flex items-center gap-2 px-4 py-2 bg-[var(--brand-coral)] text-white rounded-xl text-sm font-bold hover:bg-[var(--brand-coral)]/90 transition-all shadow-lg shadow-[var(--brand-coral)]/20">
                       <Plus className="w-4 h-4" /> 新增资产
                     </button>
                   </div>
@@ -896,11 +896,11 @@ export default function AILab() {
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">实训室名称 <span className="text-red-500">*</span></label>
-                      <input type="text" className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="例如：物联网综合实训室" />
+                      <input type="text" className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/30" placeholder="例如：物联网综合实训室" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">关联资产</label>
-                      <select className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                      <select className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/30">
                         <option value="">选择关联资产</option>
                         {assets.map(asset => (
                           <option key={asset.id} value={asset.id}>{asset.name}</option>
@@ -916,9 +916,9 @@ export default function AILab() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl border border-purple-100">
-                    <input type="checkbox" id="isAI" className="w-5 h-5 rounded border-purple-300 text-purple-600 focus:ring-purple-500" defaultChecked />
-                    <label htmlFor="isAI" className="text-sm font-medium text-purple-900 cursor-pointer">接入硬件智能体系统 (AI 化改造)</label>
+                  <div className="flex items-center gap-3 p-4 bg-[var(--brand-coral)]/5 rounded-xl border border-[var(--brand-coral)]/10">
+                    <input type="checkbox" id="isAI" className="w-5 h-5 rounded border-[var(--brand-coral)]/30 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/50" defaultChecked />
+                    <label htmlFor="isAI" className="text-sm font-bold text-[var(--brand-coral)] cursor-pointer">接入硬件智能体系统 (AI 化改造)</label>
                   </div>
 
                   <div>
@@ -930,7 +930,7 @@ export default function AILab() {
                   <button onClick={() => setIsModalOpen(false)} className="px-6 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">
                     取消
                   </button>
-                  <button className="px-6 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors">
+                  <button className="px-6 py-2 bg-[var(--brand-coral)] text-white rounded-xl text-sm font-bold hover:bg-[var(--brand-coral)]/90 transition-all shadow-lg shadow-[var(--brand-coral)]/20">
                     保存
                   </button>
                 </div>
@@ -952,10 +952,10 @@ export default function AILab() {
                     <button onClick={() => setTerminalLogModalData(null)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"><XCircle className="w-5 h-5"/></button>
                  </div>
                  <div className="p-4 border-b border-slate-100 flex items-center gap-4 bg-white">
-                   <input type="date" className="text-sm border border-slate-200 px-3 py-1.5 rounded-lg outline-none focus:border-purple-500" />
+                   <input type="date" className="text-sm border border-slate-200 px-3 py-1.5 rounded-lg outline-none focus:border-[var(--brand-coral)]" />
                    <span className="text-slate-400 text-sm">至</span>
-                   <input type="date" className="text-sm border border-slate-200 px-3 py-1.5 rounded-lg outline-none focus:border-purple-500" />
-                   <button className="px-4 py-1.5 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">查询</button>
+                   <input type="date" className="text-sm border border-slate-200 px-3 py-1.5 rounded-lg outline-none focus:border-[var(--brand-coral)]" />
+                   <button className="px-4 py-1.5 bg-[var(--brand-coral)] text-white rounded-lg text-sm font-bold shadow-lg shadow-[var(--brand-coral)]/15 hover:bg-[var(--brand-coral)]/90">查询</button>
                  </div>
                  <div className="flex-1 overflow-y-auto p-0">
                    <table className="w-full text-left text-sm">
@@ -999,7 +999,7 @@ export default function AILab() {
                  </div>
                  <div className="p-6">
                    <p className="text-sm text-slate-600 mb-4">将终端 <span className="font-mono font-bold text-slate-900">{changeLabModalData.ip}</span> 跨区迁移至新的实训室：</p>
-                   <select id="newLabSelect" className="w-full px-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
+                   <select id="newLabSelect" className="w-full px-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-[var(--brand-coral)] focus:ring-1 focus:ring-[var(--brand-coral)]/30">
                      {labs.map(l => (
                        <option key={l.id} value={l.name}>{l.name} ({l.asset})</option>
                      ))}
@@ -1010,7 +1010,7 @@ export default function AILab() {
                    <button onClick={() => {
                      const val = (document.getElementById('newLabSelect') as HTMLSelectElement).value;
                      handleChangeLabSubmit(val);
-                   }} className="px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 rounded-xl text-sm font-medium">确认迁移</button>
+                   }} className="px-4 py-2 bg-[var(--brand-coral)] text-white hover:bg-[var(--brand-coral)]/90 rounded-xl text-sm font-bold shadow-lg shadow-[var(--brand-coral)]/15">确认迁移</button>
                  </div>
                </motion.div>
             </div>
@@ -1040,7 +1040,7 @@ export default function AILab() {
                       type="text" 
                       value={assetFormData.name}
                       onChange={(e) => setAssetFormData({...assetFormData, name: e.target.value})}
-                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/30" 
                       placeholder="例如：A栋教学楼" 
                     />
                   </div>
@@ -1049,7 +1049,7 @@ export default function AILab() {
                     <select 
                       value={assetFormData.parentId}
                       onChange={(e) => setAssetFormData({...assetFormData, parentId: e.target.value})}
-                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/30"
                     >
                       <option value="">无 (作为顶级资产)</option>
                       {assets.filter(a => a.id !== editingAsset?.id).map(asset => (
@@ -1062,7 +1062,7 @@ export default function AILab() {
                     <textarea 
                       value={assetFormData.remarks}
                       onChange={(e) => setAssetFormData({...assetFormData, remarks: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 resize-none" 
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/30 h-24 resize-none" 
                       placeholder="资产相关备注信息..." 
                     />
                   </div>
@@ -1071,7 +1071,7 @@ export default function AILab() {
                   <button onClick={() => setIsAssetModalOpen(false)} className="px-6 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">
                     取消
                   </button>
-                  <button onClick={handleSaveAsset} className="px-6 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors">
+                  <button onClick={handleSaveAsset} className="px-6 py-2 bg-[var(--brand-coral)] text-white rounded-xl text-sm font-bold hover:bg-[var(--brand-coral)]/90 transition-all shadow-lg shadow-[var(--brand-coral)]/20">
                     保存
                   </button>
                 </div>
