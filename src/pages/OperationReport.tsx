@@ -164,29 +164,29 @@ export default function OperationReport() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-8 border-b border-slate-200 mb-8">
+        <div className="flex gap-8 border-b border-slate-200 mb-8 sticky top-24 z-30 bg-white/80 backdrop-blur-md -mx-8 px-8">
           <button
             onClick={() => setActiveTab('system')}
             className={cn(
-              "pb-4 text-lg font-medium transition-colors relative",
-              activeTab === 'system' ? "text-purple-600" : "text-slate-500 hover:text-slate-900"
+              "pb-4 text-lg font-bold transition-all relative",
+              activeTab === 'system' ? "text-[var(--brand-coral)] scale-105" : "text-slate-500 hover:text-slate-900"
             )}
           >
             系统报告
             {activeTab === 'system' && (
-              <motion.div layoutId="active-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
+              <motion.div layoutId="active-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-coral)] shadow-[0_0_8px_rgba(232,93,58,0.5)]" />
             )}
           </button>
           <button
             onClick={() => setActiveTab('my')}
             className={cn(
-              "pb-4 text-lg font-medium transition-colors relative",
-              activeTab === 'my' ? "text-purple-600" : "text-slate-500 hover:text-slate-900"
+              "pb-4 text-lg font-bold transition-all relative",
+              activeTab === 'my' ? "text-[var(--brand-coral)] scale-105" : "text-slate-500 hover:text-slate-900"
             )}
           >
             我的报告
             {activeTab === 'my' && (
-              <motion.div layoutId="active-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
+              <motion.div layoutId="active-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-coral)] shadow-[0_0_8px_rgba(232,93,58,0.5)]" />
             )}
           </button>
         </div>
@@ -203,36 +203,36 @@ export default function OperationReport() {
             {activeTab === 'system' ? (
               <div className="space-y-6">
                 {/* System Report Settings Banner */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 relative overflow-hidden">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 relative overflow-hidden group">
                   {/* Background decoration */}
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-purple-50 rounded-full blur-3xl -mr-10 -mt-10 opacity-60 pointer-events-none"></div>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--brand-coral)]/[0.03] rounded-full blur-3xl -mr-10 -mt-10 opacity-60 pointer-events-none group-hover:bg-[var(--brand-coral)]/[0.06] transition-colors duration-700"></div>
                   
                   {/* Right side controls (Button + Current Config) */}
                   <div className="absolute top-6 right-6 flex flex-col items-end gap-3 z-20">
                     <button 
                       onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
-                      className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm"
+                      className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm active:scale-95"
                     >
-                      <Settings className="w-4 h-4 text-purple-600" />
+                      <Settings className={cn("w-4 h-4 transition-transform duration-500", isSettingsExpanded ? "rotate-90 text-[var(--brand-coral)]" : "text-slate-400")} />
                       配置
                     </button>
-                    <div className="bg-slate-50/80 backdrop-blur-sm border-r-4 border-purple-600 p-3 rounded-l-xl text-right">
-                      <div className="font-bold text-slate-900 text-sm">当前配置：月度报告</div>
-                      <div className="text-xs text-slate-500 mt-1">下次生成日期：2026.04.01</div>
+                    <div className="bg-slate-50/80 backdrop-blur-sm border-r-4 border-[var(--brand-coral)] p-3 rounded-l-xl text-right shadow-sm">
+                      <div className="font-black text-slate-900 text-sm">当前配置：月度报告</div>
+                      <div className="text-[10px] text-slate-500 mt-1 uppercase font-bold tracking-wider">下次生成日期：2026.04.01</div>
                     </div>
                   </div>
 
                   <div className="flex flex-col lg:flex-row gap-8 relative z-10">
                     {/* Left: Description Block */}
                     <div className="flex-1 max-w-2xl pr-48">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-0.5 bg-purple-600"></div>
-                        <span className="text-xs font-bold text-purple-600 tracking-widest">自动化中心</span>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-1 bg-[var(--brand-coral)] rounded-full"></div>
+                        <span className="text-xs font-black text-[var(--brand-coral)] tracking-[0.2em] uppercase">Automation Center</span>
                       </div>
-                      <h2 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
+                      <h2 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">
                         运营报告自动化中心
                       </h2>
-                      <p className="text-slate-500 mb-6 text-sm leading-relaxed">
+                      <p className="text-slate-500 mb-6 text-sm leading-relaxed font-medium">
                         利用 AI 引擎自动汇聚多端数据，生成符合学术出版标准的专业分析报告。
                       </p>
                     </div>
@@ -249,22 +249,22 @@ export default function OperationReport() {
                           <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100 h-full">
                             {/* Settings Content */}
                             <div className="flex items-center justify-between mb-6 pr-24">
-                               <h3 className="font-bold text-slate-900">生成设置</h3>
+                               <h3 className="font-black text-slate-900 tracking-tight">生成设置</h3>
                                <label className="relative inline-flex items-center cursor-pointer">
                                   <input type="checkbox" className="sr-only peer" checked={autoGenerate} onChange={() => setAutoGenerate(!autoGenerate)} />
-                                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                                  <span className="ml-3 text-sm font-medium text-slate-700">{autoGenerate ? '已开启自动生成' : '已关闭自动生成'}</span>
+                                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--brand-coral)]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--brand-coral)]"></div>
+                                  <span className="ml-3 text-sm font-bold text-slate-700">{autoGenerate ? '已开启自动生成' : '已关闭自动生成'}</span>
                                 </label>
                             </div>
                             
                             <div className={cn("space-y-6 transition-opacity", !autoGenerate && "opacity-50 pointer-events-none")}>
                               <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-3">生成周期</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-3">生成周期</label>
                                 <div className="flex gap-3">
                                   {['周报', '月报'].map(cycle => (
                                     <button key={cycle} className={cn(
-                                      "flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors border",
-                                      cycle === '月报' ? "bg-purple-50 border-purple-200 text-purple-700" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                                      "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all border",
+                                      cycle === '月报' ? "bg-[var(--brand-coral)]/[0.08] border-[var(--brand-coral)]/20 text-[var(--brand-coral)] shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                                     )}>
                                       {cycle}
                                     </button>
@@ -273,19 +273,19 @@ export default function OperationReport() {
                               </div>
                               
                               <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-3">核心指标</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-3">核心指标</label>
                                 <div className="space-y-3">
                                   {['资产稼动率分析', '能效趋势模型', '预测性维护建议'].map((metric, i) => (
-                                    <label key={metric} className="flex items-center gap-3 cursor-pointer">
-                                      <input type="checkbox" defaultChecked={i < 2} className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500" />
-                                      <span className="text-sm text-slate-700">{metric}</span>
+                                    <label key={metric} className="flex items-center gap-3 cursor-pointer group">
+                                      <input type="checkbox" defaultChecked={i < 2} className="w-4 h-4 rounded border-slate-300 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/30" />
+                                      <span className="text-sm text-slate-700 group-hover:text-[var(--brand-coral)] transition-colors">{metric}</span>
                                     </label>
                                   ))}
                                 </div>
                               </div>
 
                               <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-3">生成范围</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-3">生成范围</label>
                                 <div className="flex gap-2">
                                   <select 
                                     value={generateRange}
@@ -295,7 +295,7 @@ export default function OperationReport() {
                                         setIsLabSelectModalOpen(true);
                                       }
                                     }}
-                                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/20 focus:border-[var(--brand-coral)]/50"
                                   >
                                     <option value="all">全部实训室</option>
                                     <option value="specific">指定范围...</option>
@@ -303,7 +303,7 @@ export default function OperationReport() {
                                   {generateRange === 'specific' && (
                                     <button 
                                       onClick={() => setIsLabSelectModalOpen(true)}
-                                      className="px-4 py-2.5 bg-purple-50 text-purple-600 rounded-xl text-sm font-medium hover:bg-purple-100 whitespace-nowrap transition-colors border border-purple-100"
+                                      className="px-4 py-2.5 bg-[var(--brand-coral)]/[0.05] text-[var(--brand-coral)] rounded-xl text-sm font-bold hover:bg-[var(--brand-coral)]/[0.1] whitespace-nowrap transition-all border border-[var(--brand-coral)]/10"
                                     >
                                       已选 {selectedLabs.length} 项
                                     </button>
@@ -312,7 +312,7 @@ export default function OperationReport() {
                               </div>
 
                               <div className="pt-4 flex justify-end">
-                                <button className="px-6 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors shadow-sm shadow-purple-200">
+                                <button className="px-8 py-2.5 bg-[var(--brand-coral)] text-white rounded-xl text-sm font-black hover:bg-[var(--brand-coral)]/90 transition-all shadow-lg shadow-[var(--brand-coral)]/20 active:scale-95">
                                   保存配置
                                 </button>
                               </div>
@@ -326,17 +326,17 @@ export default function OperationReport() {
 
                 {/* List Controls */}
                 <div className="sticky top-24 z-30 bg-white/95 backdrop-blur-sm py-4 flex flex-col md:flex-row gap-4 justify-between items-center border-b border-slate-100 mb-6 -mx-8 px-8">
-                  <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg shrink-0">
+                  <div className="flex items-center gap-1 bg-slate-100 p-1.5 rounded-xl shrink-0">
                     <button 
                       onClick={() => setViewMode('grid')}
-                      className={cn("p-1.5 rounded-md transition-colors", viewMode === 'grid' ? "bg-white text-purple-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                      className={cn("p-2 rounded-lg transition-all", viewMode === 'grid' ? "bg-white text-[var(--brand-coral)] shadow-sm" : "text-slate-500 hover:text-slate-700")}
                       title="块状展示"
                     >
                       <LayoutGrid className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => setViewMode('list')}
-                      className={cn("p-1.5 rounded-md transition-colors", viewMode === 'list' ? "bg-white text-purple-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                      className={cn("p-2 rounded-lg transition-all", viewMode === 'list' ? "bg-white text-[var(--brand-coral)] shadow-sm" : "text-slate-500 hover:text-slate-700")}
                       title="列表展示"
                     >
                       <List className="w-4 h-4" />
@@ -345,14 +345,14 @@ export default function OperationReport() {
                   
                   <div className="flex flex-wrap items-center gap-4 w-full md:w-auto flex-1 justify-end">
                     <div className="flex items-center gap-2">
-                      <div className="relative">
-                        <Calendar className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="pl-6 pr-2 py-1.5 bg-transparent border-b border-slate-200 text-sm focus:outline-none focus:border-purple-500 transition-colors text-slate-600" />
+                      <div className="relative group">
+                        <Calendar className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[var(--brand-coral)] transition-colors" />
+                        <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="pl-6 pr-2 py-1.5 bg-transparent border-b border-slate-200 text-sm font-bold focus:outline-none focus:border-[var(--brand-coral)] transition-all text-slate-600 focus:text-slate-900" />
                       </div>
-                      <span className="text-slate-400 text-sm">至</span>
-                      <div className="relative">
-                        <Calendar className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="pl-6 pr-2 py-1.5 bg-transparent border-b border-slate-200 text-sm focus:outline-none focus:border-purple-500 transition-colors text-slate-600" />
+                      <span className="text-slate-400 text-sm font-bold">至</span>
+                      <div className="relative group">
+                        <Calendar className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[var(--brand-coral)] transition-colors" />
+                        <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="pl-6 pr-2 py-1.5 bg-transparent border-b border-slate-200 text-sm font-bold focus:outline-none focus:border-[var(--brand-coral)] transition-all text-slate-600 focus:text-slate-900" />
                       </div>
                     </div>
                     <div className="relative w-full md:w-64">
@@ -379,23 +379,23 @@ export default function OperationReport() {
                           <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-slate-200"></div>
                           
                           {/* Decorative elements */}
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                          <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl -ml-8 -mb-8"></div>
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--brand-coral)]/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                          <div className="absolute bottom-0 left-0 w-24 h-24 bg-[var(--brand-amber)]/5 rounded-full blur-xl -ml-8 -mb-8"></div>
                           
                           <div className="absolute inset-0 p-6 flex flex-col">
                             <div className="flex justify-between items-start mb-auto">
-                              <div className="w-8 h-1 bg-purple-600 rounded-full"></div>
-                              <span className="px-2 py-1 bg-white/80 backdrop-blur-sm text-slate-600 rounded text-[10px] font-bold tracking-wider shadow-sm border border-slate-200/50">
+                              <div className="w-8 h-1 bg-[var(--brand-coral)] rounded-full"></div>
+                              <span className="px-2 py-1 bg-white/80 backdrop-blur-sm text-slate-600 rounded text-[10px] font-black tracking-wider shadow-sm border border-slate-200/50">
                                 {report.type}
                               </span>
                             </div>
                             
                             <div className="mt-auto">
-                              <h4 className="text-lg font-black text-slate-800 leading-tight mb-2 line-clamp-3 group-hover:text-purple-700 transition-colors">
+                              <h4 className="text-lg font-black text-slate-800 leading-tight mb-2 line-clamp-3 group-hover:text-[var(--brand-coral)] transition-all">
                                 {report.name}
                               </h4>
-                              <div className="w-12 h-0.5 bg-slate-300 mb-3"></div>
-                              <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">
+                              <div className="w-12 h-1 bg-[var(--brand-coral)]/20 mb-3 rounded-full"></div>
+                              <p className="text-[11px] text-[var(--brand-coral)]/60 font-black uppercase tracking-widest">
                                 {report.time.split(' ')[0]}
                               </p>
                             </div>
@@ -415,7 +415,7 @@ export default function OperationReport() {
                             </p>
                           </div>
                           <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                            <button onClick={() => setViewingReport(report)} className="text-xs font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 bg-purple-50 px-2.5 py-1.5 rounded-lg transition-colors">
+                            <button onClick={() => setViewingReport(report)} className="text-xs font-black text-[var(--brand-coral)] hover:text-white flex items-center gap-1 bg-[var(--brand-coral)]/[0.08] hover:bg-[var(--brand-coral)] px-3 py-1.5 rounded-lg transition-all active:scale-95">
                               <Eye className="w-3.5 h-3.5" /> 预览
                             </button>
                             <div className="flex items-center gap-1">
@@ -445,19 +445,19 @@ export default function OperationReport() {
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {currentSystemReports.map(report => (
-                          <tr key={report.id} className="hover:bg-slate-50/50 transition-colors">
-                            <td className="px-6 py-4 font-medium text-slate-900 flex items-center gap-2">
-                              <FileText className="w-4 h-4 text-purple-500" /> {report.name}
+                          <tr key={report.id} className="hover:bg-slate-50/50 transition-colors group">
+                            <td className="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-[var(--brand-coral)] group-hover:scale-110 transition-transform" /> {report.name}
                             </td>
                             <td className="px-6 py-4 text-slate-500">{report.time}</td>
                             <td className="px-6 py-4 text-slate-600">{report.lab}</td>
                             <td className="px-6 py-4 text-slate-600">
                               <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">{report.type}</span>
                             </td>
-                            <td className="px-6 py-4 text-right flex justify-end gap-3">
-                              <button onClick={() => setViewingReport(report)} className="text-slate-400 hover:text-purple-600 transition-colors" title="预览"><Eye className="w-4 h-4" /></button>
-                              <button onClick={() => handleDownload(report.name)} className="text-slate-400 hover:text-blue-600 transition-colors" title="导出Word"><Download className="w-4 h-4" /></button>
-                              <button className="text-slate-400 hover:text-red-600 transition-colors" title="删除"><Trash2 className="w-4 h-4" /></button>
+                            <td className="px-6 py-4 text-right flex justify-end gap-3 text-slate-400">
+                              <button onClick={() => setViewingReport(report)} className="hover:text-[var(--brand-coral)] transition-colors" title="预览"><Eye className="w-4 h-4" /></button>
+                              <button onClick={() => handleDownload(report.name)} className="hover:text-blue-600 transition-colors" title="导出Word"><Download className="w-4 h-4" /></button>
+                              <button className="hover:text-red-600 transition-colors" title="删除"><Trash2 className="w-4 h-4" /></button>
                             </td>
                           </tr>
                         ))}
@@ -477,8 +477,8 @@ export default function OperationReport() {
                 {/* Actions & Search */}
                 <div className="sticky top-24 z-30 bg-white/95 backdrop-blur-sm py-4 flex flex-col md:flex-row gap-4 justify-between items-center border-b border-slate-100 mb-6 -mx-8 px-8">
                   <div className="flex items-center gap-3">
-                    <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors">
-                      <Plus className="w-4 h-4" /> 新增报告
+                    <button onClick={() => setIsModalOpen(true)} className="group flex items-center gap-2 px-6 py-2.5 bg-[var(--brand-coral)] text-white rounded-xl text-sm font-black hover:bg-[var(--brand-coral)]/90 transition-all shadow-lg shadow-[var(--brand-coral)]/10 active:scale-95">
+                      <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" /> 新增报告
                     </button>
                     <button onClick={handleBatchDownload} className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-200 transition-colors">
                       <Download className="w-4 h-4" /> 批量导出 {selectedMyReports.length > 0 && `(${selectedMyReports.length})`}
@@ -489,41 +489,41 @@ export default function OperationReport() {
                   </div>
                   
                   <div className="flex flex-wrap items-center gap-4 w-full md:w-auto flex-1 justify-end">
-                    <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg shrink-0">
+                    <div className="flex items-center gap-1 bg-slate-100 p-1.5 rounded-xl shrink-0">
                       <button 
                         onClick={() => setMyViewMode('grid')}
-                        className={cn("p-1.5 rounded-md transition-colors", myViewMode === 'grid' ? "bg-white text-purple-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                        className={cn("p-2 rounded-lg transition-all", myViewMode === 'grid' ? "bg-white text-[var(--brand-coral)] shadow-sm" : "text-slate-500 hover:text-slate-700")}
                         title="块状展示"
                       >
                         <LayoutGrid className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => setMyViewMode('list')}
-                        className={cn("p-1.5 rounded-md transition-colors", myViewMode === 'list' ? "bg-white text-purple-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                        className={cn("p-2 rounded-lg transition-all", myViewMode === 'list' ? "bg-white text-[var(--brand-coral)] shadow-sm" : "text-slate-500 hover:text-slate-700")}
                         title="列表展示"
                       >
                         <List className="w-4 h-4" />
                       </button>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="relative">
-                        <Calendar className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input type="date" value={myStartDate} onChange={e => setMyStartDate(e.target.value)} className="pl-6 pr-2 py-1.5 bg-transparent border-b border-slate-200 text-sm focus:outline-none focus:border-purple-500 transition-colors text-slate-600" />
+                      <div className="relative group">
+                        <Calendar className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[var(--brand-coral)] transition-colors" />
+                        <input type="date" value={myStartDate} onChange={e => setMyStartDate(e.target.value)} className="pl-6 pr-2 py-1.5 bg-transparent border-b border-slate-200 text-sm font-bold focus:outline-none focus:border-[var(--brand-coral)] transition-all text-slate-600 focus:text-slate-900" />
                       </div>
-                      <span className="text-slate-400 text-sm">至</span>
-                      <div className="relative">
-                        <Calendar className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input type="date" value={myEndDate} onChange={e => setMyEndDate(e.target.value)} className="pl-6 pr-2 py-1.5 bg-transparent border-b border-slate-200 text-sm focus:outline-none focus:border-purple-500 transition-colors text-slate-600" />
+                      <span className="text-slate-400 text-sm font-bold">至</span>
+                      <div className="relative group">
+                        <Calendar className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[var(--brand-coral)] transition-colors" />
+                        <input type="date" value={myEndDate} onChange={e => setMyEndDate(e.target.value)} className="pl-6 pr-2 py-1.5 bg-transparent border-b border-slate-200 text-sm font-bold focus:outline-none focus:border-[var(--brand-coral)] transition-all text-slate-600 focus:text-slate-900" />
                       </div>
                     </div>
-                    <div className="relative w-full md:w-64">
-                      <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <div className="relative w-full md:w-64 group">
+                      <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[var(--brand-coral)] transition-colors" />
                       <input
                         type="text"
                         placeholder="搜索报告名称、实训室..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-6 pr-2 py-1.5 bg-transparent border-b border-slate-200 text-sm focus:outline-none focus:border-purple-500 transition-colors text-slate-600"
+                        className="w-full pl-6 pr-2 py-1.5 bg-transparent border-b border-slate-200 text-sm font-bold focus:outline-none focus:border-[var(--brand-coral)] transition-all text-slate-600 focus:text-slate-900"
                       />
                     </div>
                   </div>
@@ -540,7 +540,7 @@ export default function OperationReport() {
                               type="checkbox" 
                               checked={selectedMyReports.includes(report.id)}
                               onChange={() => toggleMyReportSelection(report.id)}
-                              className="rounded border-slate-300 text-purple-600 focus:ring-purple-500" 
+                              className="w-5 h-5 rounded-lg border-white/20 bg-black/20 backdrop-blur-md text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/30 transition-all cursor-pointer" 
                             />
                           </div>
                           {/* Cover Image (Vertical Rectangle) */}
@@ -560,10 +560,10 @@ export default function OperationReport() {
                               </div>
                               
                               <div className="mt-auto">
-                                <h4 className="text-lg font-black text-slate-800 leading-tight mb-2 line-clamp-3 group-hover:text-purple-700 transition-colors">
+                                <h4 className="text-lg font-black text-slate-800 leading-tight mb-2 line-clamp-3 group-hover:text-[var(--brand-coral)] transition-all">
                                   {report.name}
                                 </h4>
-                                <div className="w-12 h-0.5 bg-slate-300 mb-3"></div>
+                                <div className="w-12 h-1 bg-[var(--brand-coral)]/20 mb-3 rounded-full"></div>
                                 <p className="text-[11px] text-slate-600 font-medium uppercase tracking-wider">
                                   {report.time.split(' ')[0]}
                                 </p>
@@ -584,9 +584,9 @@ export default function OperationReport() {
                               </p>
                             </div>
                             <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                              <button onClick={() => setViewingReport(report)} className="text-xs font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 bg-purple-50 px-2.5 py-1.5 rounded-lg transition-colors">
-                                <Eye className="w-3.5 h-3.5" /> 预览
-                              </button>
+                            <button onClick={() => setViewingReport(report)} className="text-xs font-black text-[var(--brand-coral)] hover:text-white flex items-center gap-1 bg-[var(--brand-coral)]/[0.08] hover:bg-[var(--brand-coral)] px-3 py-1.5 rounded-lg transition-all active:scale-95">
+                              <Eye className="w-3.5 h-3.5" /> 预览
+                            </button>
                               <div className="flex items-center gap-1">
                                 <button onClick={() => handleDownload(report.name)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="导出Word">
                                   <Download className="w-4 h-4" />
@@ -649,10 +649,10 @@ export default function OperationReport() {
                                   <CheckCircle2 className="w-3 h-3" /> {report.status}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 text-right flex justify-end gap-3">
-                                <button onClick={() => setViewingReport(report)} className="text-slate-400 hover:text-purple-600 transition-colors" title="预览"><Eye className="w-4 h-4" /></button>
-                                <button onClick={() => handleDownload(report.name)} className="text-slate-400 hover:text-blue-600 transition-colors" title="导出"><Download className="w-4 h-4" /></button>
-                                <button className="text-slate-400 hover:text-red-600 transition-colors" title="删除"><Trash2 className="w-4 h-4" /></button>
+                              <td className="px-6 py-4 text-right flex justify-end gap-3 text-slate-400">
+                                <button onClick={() => setViewingReport(report)} className="hover:text-[var(--brand-coral)] transition-colors" title="预览"><Eye className="w-4 h-4" /></button>
+                                <button onClick={() => handleDownload(report.name)} className="hover:text-blue-600 transition-colors" title="导出"><Download className="w-4 h-4" /></button>
+                                <button className="hover:text-red-600 transition-colors" title="删除"><Trash2 className="w-4 h-4" /></button>
                               </td>
                             </tr>
                           ))}
@@ -692,20 +692,20 @@ export default function OperationReport() {
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">模板设置</label>
                     <div className="flex gap-4">
-                      <label className="flex-1 flex items-center gap-3 p-4 border border-purple-200 bg-purple-50 rounded-xl cursor-pointer">
-                        <input type="radio" name="template" defaultChecked className="text-purple-600 focus:ring-purple-500" />
-                        <span className="text-sm font-medium text-purple-900">系统默认模板</span>
+                      <label className="flex-1 flex items-center gap-3 p-4 border border-[var(--brand-coral)] bg-[var(--brand-coral)]/[0.03] rounded-2xl cursor-pointer transition-all hover:bg-[var(--brand-coral)]/[0.05]">
+                        <input type="radio" name="template" defaultChecked className="text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/30" />
+                        <span className="text-sm font-bold text-slate-900">系统默认模板</span>
                       </label>
-                      <label className="flex-1 flex items-center gap-3 p-4 border border-slate-200 bg-white rounded-xl cursor-pointer hover:bg-slate-50">
-                        <input type="radio" name="template" className="text-purple-600 focus:ring-purple-500" />
-                        <span className="text-sm font-medium text-slate-700">自定义上传模板</span>
+                      <label className="flex-1 flex items-center gap-3 p-4 border border-slate-200 bg-white rounded-2xl cursor-pointer hover:bg-slate-50 transition-all">
+                        <input type="radio" name="template" className="text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/30" />
+                        <span className="text-sm font-bold text-slate-700">自定义上传模板</span>
                       </label>
                     </div>
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">实训室范围</label>
-                    <select className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <select className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/20 focus:border-[var(--brand-coral)]/50 transition-all">
                       <option>选择实训室...</option>
                       <option>物联网综合实训室</option>
                       <option>人工智能基础实验室</option>
@@ -716,27 +716,25 @@ export default function OperationReport() {
                     <label className="block text-sm font-medium text-slate-700 mb-3">数据指标设置 (多选)</label>
                     <div className="grid grid-cols-2 gap-3">
                       {['使用率', '上线率', '使用时长', '使用趋势', '智能体交互频次', '排错引导统计'].map(metric => (
-                        <label key={metric} className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
-                          <input type="checkbox" defaultChecked className="rounded border-slate-300 text-purple-600 focus:ring-purple-500" />
-                          <span className="text-sm text-slate-700">{metric}</span>
+                        <label key={metric} className="flex items-center gap-2 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all group">
+                          <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-slate-300 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/30" />
+                          <span className="text-sm text-slate-700 font-bold group-hover:text-[var(--brand-coral)] transition-colors">{metric}</span>
                         </label>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">AI 生成提示词设置</label>
-                    <textarea className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 resize-none" placeholder="例如：重点分析设备利用率低的原因，并给出改进建议..." />
+                    <label className="block text-sm font-bold text-slate-700 mb-2">AI 生成提示词设置</label>
+                    <textarea className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[var(--brand-coral)]/10 focus:border-[var(--brand-coral)] h-28 resize-none transition-all" placeholder="例如：重点分析设备利用率低的原因，并给出改进建议..." />
                   </div>
                 </div>
-                <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
-                  <button onClick={() => setIsModalOpen(false)} className="px-6 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">
+                  <button onClick={() => setIsModalOpen(false)} className="px-8 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-2xl text-sm font-bold hover:bg-slate-50 transition-all">
                     取消
                   </button>
-                  <button className="px-6 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors flex items-center gap-2">
+                  <button className="px-8 py-2.5 bg-[var(--brand-coral)] text-white rounded-2xl text-sm font-black hover:bg-[var(--brand-coral)]/90 transition-all shadow-lg shadow-[var(--brand-coral)]/20 flex items-center gap-2 active:scale-95">
                     <FileText className="w-4 h-4" /> 开始生成
                   </button>
-                </div>
               </motion.div>
             </div>
           )}
@@ -761,20 +759,20 @@ export default function OperationReport() {
                 <div className="p-4 max-h-[60vh] overflow-y-auto">
                   <div className="space-y-2">
                     {availableLabs.map(lab => (
-                      <label key={lab} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors border border-transparent hover:border-slate-200">
+                      <label key={lab} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors border border-transparent hover:border-slate-200 group">
                         <input 
                           type="checkbox" 
                           checked={selectedLabs.includes(lab)}
                           onChange={() => toggleLabSelection(lab)}
-                          className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500" 
+                          className="w-4 h-4 rounded border-slate-300 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/30" 
                         />
-                        <span className="text-sm text-slate-700 font-medium">{lab}</span>
+                        <span className="text-sm text-slate-700 font-bold group-hover:text-[var(--brand-coral)] transition-colors">{lab}</span>
                       </label>
                     ))}
                   </div>
                 </div>
                 <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
-                  <button onClick={() => setIsLabSelectModalOpen(false)} className="px-6 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors">
+                  <button onClick={() => setIsLabSelectModalOpen(false)} className="px-8 py-2 bg-[var(--brand-coral)] text-white rounded-xl text-sm font-black hover:bg-[var(--brand-coral)]/90 transition-all shadow-lg shadow-[var(--brand-coral)]/20 active:scale-95">
                     确定 ({selectedLabs.length})
                   </button>
                 </div>
@@ -856,7 +854,7 @@ export default function OperationReport() {
                                 <Tooltip 
                                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                 />
-                                <Line type="monotone" dataKey="交互次数" stroke="#9333EA" strokeWidth={3} dot={{r: 4, fill: '#9333EA', strokeWidth: 2, stroke: '#fff'}} activeDot={{r: 6}} />
+                                <Line type="monotone" dataKey="交互次数" stroke="var(--brand-coral)" strokeWidth={4} dot={{r: 5, fill: 'var(--brand-coral)', strokeWidth: 2, stroke: '#fff'}} activeDot={{r: 7, strokeWidth: 0}} />
                               </LineChart>
                             </ResponsiveContainer>
                           </div>
@@ -900,7 +898,7 @@ export default function OperationReport() {
                                       { name: '理论问答', value: 1580 },
                                       { name: '其他', value: 600 },
                                     ].map((entry, index) => (
-                                      <Cell key={`cell-${index}`} fill={['#9333EA', '#3B82F6', '#10B981', '#F59E0B'][index % 4]} />
+                                      <Cell key={`cell-${index}`} fill={['var(--brand-coral)', 'var(--brand-sky)', 'var(--brand-jade)', 'var(--brand-amber)'][index % 4]} />
                                     ))
                                   }
                                 </Pie>

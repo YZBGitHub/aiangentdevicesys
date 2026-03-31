@@ -852,216 +852,129 @@ export default function OperationDashboard() {
         {/* --- Middle Section (Device Online Status) --- */}
         <div className="bg-white border border-purple-100 rounded-2xl p-5 shadow-sm flex flex-col flex-1 min-h-[500px]">
           <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-4 shrink-0">
-            <div className="flex items-center gap-6">
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <LayoutGrid className="w-5 h-5 text-purple-600" /> 终端设备在线状态
-              </h2>
-              <div className="flex bg-slate-100 p-1 rounded-xl gap-1">
-                <button 
-                  onClick={() => setViewMode('heatmap')}
-                  className={cn(
-                    "px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2",
-                    viewMode === 'heatmap' ? "bg-white text-purple-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                  )}
-                >
-                  <LayoutGrid className="w-3.5 h-3.5" /> 热力图模式
-                </button>
-                <button 
-                  onClick={() => setViewMode('network')}
-                  className={cn(
-                    "px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2",
-                    viewMode === 'network' ? "bg-white text-purple-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                  )}
-                >
-                  <Share2 className="w-3.5 h-3.5" /> 网状视图
-                </button>
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <LayoutGrid className="w-5 h-5 text-purple-600" /> 终端设备在线状态
+            </h2>
+            <div className="flex items-center gap-4 text-xs font-medium">
+              <div className="flex items-center gap-1.5">
+                <div className="w-4 h-2 rounded-sm bg-purple-600 shadow-sm relative">
+                  <div className="absolute top-0.5 right-0.5 w-1 h-1 rounded-full bg-emerald-400" />
+                </div> 
+                在线 ({stats.online})
               </div>
+              <div className="flex items-center gap-1.5"><div className="w-4 h-2 rounded-sm bg-purple-100 border border-purple-200 shadow-sm"></div> 离线 ({stats.offline})</div>
+              <div className="flex items-center gap-1.5"><div className="w-4 h-2 rounded-sm bg-red-500 shadow-sm"></div> 异常 ({stats.abnormal})</div>
             </div>
-            
-            {viewMode === 'heatmap' && (
-              <div className="flex items-center gap-4 text-xs font-medium">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-4 h-2 rounded-sm bg-purple-600 shadow-sm relative">
-                    <div className="absolute top-0.5 right-0.5 w-1 h-1 rounded-full bg-emerald-400" />
-                  </div> 
-                  在线 ({stats.online})
-                </div>
-                <div className="flex items-center gap-1.5"><div className="w-4 h-2 rounded-sm bg-purple-100 border border-purple-200 shadow-sm"></div> 离线 ({stats.offline})</div>
-                <div className="flex items-center gap-1.5"><div className="w-4 h-2 rounded-sm bg-red-500 shadow-sm"></div> 异常 ({stats.abnormal})</div>
-              </div>
-            )}
           </div>
           
-          <div className="flex-1 flex gap-6 min-h-0">
-            {/* Left: Asset Tree (Hidden in Network View) */}
-            {viewMode === 'heatmap' && (
-              <div className="w-64 border-r border-slate-100 pr-4 overflow-y-auto custom-scrollbar flex-shrink-0">
-                <div 
-                  className={cn(
-                    "flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors mb-2",
-                    selectedNode.type === 'all' ? "bg-purple-100 text-purple-700 font-bold" : "hover:bg-purple-50 text-slate-700"
-                  )}
-                  onClick={() => setSelectedNode({type: 'all', id: 'all'})}
-                >
-                  <Building2 className="w-4 h-4" />
-                  <span className="text-sm">全校所有资产</span>
-                </div>
-                
-                <div className="space-y-1">
-                  {assets.map(asset => {
-                    const isExpanded = expandedNodes.includes(asset.id);
-                    const isSelected = selectedNode.type === 'asset' && selectedNode.id === asset.id;
-                    
-                    return (
-                      <div key={asset.id} className="select-none">
-                        <div 
-                          className={cn(
-                            "flex items-center gap-1 p-1.5 rounded-lg cursor-pointer transition-colors",
-                            isSelected ? "bg-purple-50 text-purple-700 font-bold" : "hover:bg-purple-50 text-slate-700"
-                          )}
-                        >
-                          <div 
-                            className="p-1 hover:bg-purple-100 rounded text-slate-400"
-                            onClick={(e) => { e.stopPropagation(); toggleNode(asset.id); }}
-                          >
-                            {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                          </div>
-                          <div className="flex items-center gap-2 flex-1" onClick={() => setSelectedNode({type: 'asset', id: asset.id})}>
-                            <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                            <span className="text-sm">{asset.name}</span>
-                          </div>
-                        </div>
-                        
-                        <AnimatePresence>
-                          {isExpanded && (
-                            <motion.div 
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              className="ml-6 pl-2 border-l border-slate-200 space-y-1 mt-1 overflow-hidden"
-                            >
-                              {asset.labs.map(lab => {
-                                const isLabSelected = selectedNode.type === 'lab' && selectedNode.id === lab.id;
+          <div className="flex-1 flex gap-5 min-h-0 pt-2 pb-4">
+            {/* 左侧：楼房热力图 */}
+            <div className="w-[60%] overflow-auto flex flex-col shrink-0">
+                <div className="flex-1 bg-gradient-to-b from-slate-50/80 to-white rounded-xl overflow-auto relative border border-purple-100 shadow-inner">
+                  {/* 背景网格 */}
+                  <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ 
+                    backgroundImage: `linear-gradient(#f3e8ff 1px, transparent 1px), linear-gradient(90deg, #f3e8ff 1px, transparent 1px)`,
+                    backgroundSize: '24px 24px'
+                  }}></div>
+                  {/* 地面线 */}
+                  <div className="absolute bottom-[52px] left-6 right-6 h-px bg-slate-300/50 pointer-events-none z-[1]"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-stone-100/90 via-stone-50/50 to-transparent pointer-events-none rounded-b-xl z-[1]"></div>
+
+                  {/* 楼房天际线 */}
+                  <div className="relative z-10 flex gap-8 items-end justify-center px-8 pb-14 pt-6 min-h-full">
+                    {assets.map((asset, assetIdx) => {
+                      const assetDevices = allDevices.filter(d => d.assetId === asset.id);
+                      const onlineCount = assetDevices.filter(d => d.status === 'online').length;
+                      const totalCount = assetDevices.length;
+                      const onlineRate = totalCount > 0 ? Math.round((onlineCount / totalCount) * 100) : 0;
+                      const styles = [
+                        { gradient: 'from-[#E85D3A] to-[#F5A623]', bc: '#E85D3A' },
+                        { gradient: 'from-[#4A90D9] to-[#6366f1]', bc: '#4A90D9' },
+                        { gradient: 'from-[#27AE60] to-[#10b981]', bc: '#27AE60' },
+                        { gradient: 'from-[#F5A623] to-[#E85D3A]', bc: '#F5A623' },
+                      ];
+                      const s = styles[assetIdx % styles.length];
+
+                      return (
+                        <motion.div key={asset.id} className="flex flex-col items-center"
+                          initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.6, delay: assetIdx * 0.12, ease: 'easeOut' }}>
+                          <div className="relative group/building w-[220px]">
+                            {/* 天线 */}
+                            <div className="flex justify-center mb-[-1px]"><div className="w-px h-4 bg-slate-300"></div></div>
+                            <div className="flex justify-center mb-[-1px]"><div className="w-6 h-1 bg-slate-300 rounded-t"></div></div>
+                            {/* 屋顶 */}
+                            <div className={cn("bg-gradient-to-r text-white px-4 py-3 rounded-t-xl text-center relative overflow-hidden shadow-lg", s.gradient)}>
+                              <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 10px, white 10px, white 11px)` }}></div>
+                              <Building2 className="w-5 h-5 mx-auto mb-1 opacity-80 relative z-10" />
+                              <div className="text-sm font-black tracking-wide relative z-10">{asset.name}</div>
+                              <div className="text-[10px] opacity-80 font-medium mt-0.5 relative z-10">{onlineCount}/{totalCount} 在线 · {onlineRate}%</div>
+                            </div>
+                            {/* 楼体（实训室楼层） */}
+                            <div className="bg-white shadow-md" style={{ borderLeft: `2px solid ${s.bc}30`, borderRight: `2px solid ${s.bc}30` }}>
+                              {asset.labs.map((lab, labIdx) => {
+                                const labDevices = allDevices.filter(d => d.labId === lab.id);
+                                const labOnline = labDevices.filter(d => d.status === 'online').length;
                                 return (
-                                  <div 
-                                    key={lab.id}
-                                    onClick={() => setSelectedNode({type: 'lab', id: lab.id})}
-                                    className={cn(
-                                      "flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors text-sm",
-                                      isLabSelected ? "bg-purple-50 text-purple-700 font-bold" : "hover:bg-purple-50 text-slate-600"
-                                    )}
-                                  >
-                                    <Monitor className="w-3.5 h-3.5 text-slate-400" />
-                                    <span className="truncate">{lab.name}</span>
+                                  <div key={lab.id} className={cn("px-3 py-3 relative", labIdx > 0 && "border-t border-slate-200")}>
+                                    <div className="flex items-center gap-1.5 mb-2">
+                                      <div className="w-1 h-4 rounded-full" style={{ backgroundColor: `${s.bc}60` }}></div>
+                                      <Monitor className="w-3 h-3 text-slate-400 shrink-0" />
+                                      <span className="text-[11px] font-bold text-slate-700 truncate">{lab.short}</span>
+                                      <span className="text-[9px] text-slate-400 ml-auto whitespace-nowrap font-medium">{labOnline}/{labDevices.length}</span>
+                                    </div>
+                                    <div className="grid grid-cols-6 gap-[3px]">
+                                      {labDevices.map(device => (
+                                        <div key={device.id}
+                                          className="aspect-square rounded-[3px] flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-[1.35] hover:z-20 relative group/cell shadow-sm"
+                                          style={{ backgroundColor: getHeatColor(device.status) }}>
+                                          {device.status === 'online' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />}
+                                          {device.status === 'abnormal' && <div className="w-1.5 h-1.5 rounded-full bg-white/80 animate-pulse" />}
+                                          {/* Tooltip */}
+                                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2.5 bg-slate-900 text-white text-[10px] rounded-xl opacity-0 group-hover/cell:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-all scale-90 group-hover/cell:scale-100 shadow-2xl border border-slate-700">
+                                            <div className="font-bold text-[11px] mb-1.5 text-purple-300 border-b border-slate-700 pb-1">{device.name}</div>
+                                            <div className="space-y-1 min-w-[120px]">
+                                              <div className="flex justify-between gap-3"><span className="text-slate-400">实训室:</span><span className="font-medium">{device.labName}</span></div>
+                                              <div className="flex justify-between gap-3"><span className="text-slate-400">IP:</span><span className="font-mono text-cyan-300">{device.ip}</span></div>
+                                              <div className="flex justify-between gap-3 pt-1 border-t border-slate-700">
+                                                <span className="text-slate-400">状态:</span>
+                                                <span className={cn("font-bold", device.status === 'online' ? "text-emerald-400" : device.status === 'abnormal' ? "text-red-400" : "text-slate-400")}>
+                                                  {device.status === 'online' ? '在线' : device.status === 'abnormal' ? '异常' : '离线'}
+                                                </span>
+                                              </div>
+                                            </div>
+                                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
                                 );
                               })}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Right: Content Area */}
-            <div className="flex-1 overflow-hidden flex flex-col pt-2 pb-4">
-              {viewMode === 'heatmap' ? (
-                <div className="flex-1 bg-white rounded-xl overflow-hidden relative border border-purple-100 shadow-inner flex items-center justify-center p-4">
-                  {/* Background Grid/Map Effect */}
-                  <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ 
-                    backgroundImage: `linear-gradient(#f3e8ff 1px, transparent 1px), linear-gradient(90deg, #f3e8ff 1px, transparent 1px)`,
-                    backgroundSize: '32px 32px'
-                  }}></div>
-                  
-                  <div className="relative z-10 flex flex-col gap-[4px] scale-90 lg:scale-100 transition-transform">
-                    {(() => {
-                      let deviceIndex = 0;
-                      return spatialHeatmapData.map((row, rowIndex) => (
-                        <div key={rowIndex} className="flex gap-[4px]">
-                          {row.map((val, colIndex) => {
-                            if (val === 0) return <div key={colIndex} className="w-16 h-8 opacity-0"></div>;
-                            
-                            const device = displayedDevices[deviceIndex % displayedDevices.length];
-                            deviceIndex++;
-                            
-                            if (!device) return <div key={colIndex} className="w-16 h-8 opacity-0"></div>;
-
-                            return (
-                              <div 
-                                key={colIndex}
-                                className="w-16 h-8 flex items-center justify-center text-[10px] font-bold transition-all duration-300 hover:scale-110 cursor-pointer rounded-md shadow-sm border border-white/50 relative group px-1"
-                                style={{ 
-                                  backgroundColor: getHeatColor(device.status),
-                                  color: getHeatTextColor(device.status),
-                                }}
-                              >
-                                <span className="truncate">{device.name.replace(/[【】]/g, '').replace('-', '')}</span>
-                                {device.status === 'online' && (
-                                  <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.8)]" />
-                                )}
-
-                                {/* Custom Tooltip */}
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 p-3 bg-slate-900 text-white text-xs rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-all scale-90 group-hover:scale-100 shadow-2xl border border-slate-700">
-                                  <div className="font-bold text-sm mb-2 text-purple-300 border-b border-slate-700 pb-1">{device.name}</div>
-                                  <div className="space-y-1.5 min-w-[140px]">
-                                    <div className="flex justify-between gap-4">
-                                      <span className="text-slate-400">归属资产:</span>
-                                      <span className="font-medium">{device.assetName}</span>
-                                    </div>
-                                    <div className="flex justify-between gap-4">
-                                      <span className="text-slate-400">归属实训室:</span>
-                                      <span className="font-medium">{device.labName}</span>
-                                    </div>
-                                    <div className="flex justify-between gap-4">
-                                      <span className="text-slate-400">IP地址:</span>
-                                      <span className="font-mono text-cyan-300">{device.ip}</span>
-                                    </div>
-                                    <div className="flex justify-between gap-4 pt-1 mt-1 border-t border-slate-700">
-                                      <span className="text-slate-400">当前状态:</span>
-                                      <span className={cn(
-                                        "font-bold",
-                                        device.status === 'online' ? "text-emerald-400" : 
-                                        device.status === 'abnormal' ? "text-red-400" : "text-slate-400"
-                                      )}>
-                                        {device.status === 'online' ? '在线' : device.status === 'abnormal' ? '异常' : '离线'}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  {/* Tooltip Arrow */}
-                                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ));
-                    })()}
+                            </div>
+                            {/* 地基 */}
+                            <div className="h-2.5 bg-gradient-to-b from-slate-300 to-slate-400 rounded-b-lg shadow-md"></div>
+                            <div className="mx-4 h-2 bg-slate-900/5 rounded-[100%] blur-sm -mt-1"></div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
                   </div>
 
-                  {/* Legend Overlay */}
-                  <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-md p-3 rounded-xl border border-purple-100 text-[10px] text-slate-600 shadow-lg space-y-2">
+                  {/* 图例 */}
+                  <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-md p-3 rounded-xl border border-purple-100 text-[10px] text-slate-600 shadow-lg space-y-2 z-20">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-md bg-purple-600 relative">
-                        <div className="absolute top-0.5 right-0.5 w-1 h-1 rounded-full bg-emerald-400" />
-                      </div>
+                      <div className="w-3 h-3 rounded-md bg-purple-600 relative"><div className="absolute top-0.5 right-0.5 w-1 h-1 rounded-full bg-emerald-400" /></div>
                       <span>在线设备</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-md bg-purple-100 border border-purple-200"></div>
-                      <span>离线设备</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-md bg-red-500"></div>
-                      <span>异常告警</span>
-                    </div>
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-md bg-purple-100 border border-purple-200"></div><span>离线设备</span></div>
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-md bg-red-500"></div><span>异常告警</span></div>
                   </div>
                 </div>
-              ) : (
-                <NetworkGraph devices={allDevices} assets={assets} />
-              )}
+            </div>
+            {/* 右侧：网状视图 */}
+            <div className="flex-1 min-w-0 flex flex-col">
+              <NetworkGraph devices={allDevices} assets={assets} />
             </div>
           </div>
         </div>

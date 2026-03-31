@@ -4,24 +4,15 @@ import { Search, Plus, Trash2, Edit, Settings, Video, Cpu, AlertTriangle, CheckC
 import { cn } from '../lib/utils';
 
 const labs = [
-  { id: 1, name: '物联网综合实训室', asset: 'A栋-301', isAI: true, isOnline: true, hasLiveView: true, recentUse: '10分钟前', recentDuration: '2小时', rank: 1, warning: false, agentCount: 24, image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80' },
-  { id: 2, name: '人工智能基础实验室', asset: 'B栋-205', isAI: true, isOnline: true, hasLiveView: true, recentUse: '1小时前', recentDuration: '4小时', rank: 2, warning: false, agentCount: 30, image: 'https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&w=800&q=80' },
-  { id: 3, name: '工业互联网实训中心', asset: 'C栋-101', isAI: false, isOnline: false, hasLiveView: false, recentUse: '3天前', recentDuration: '1小时', rank: 15, warning: true, agentCount: 0, image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80' },
-  { id: 4, name: '大数据分析实训室', asset: 'B栋-202', isAI: true, isOnline: true, hasLiveView: true, recentUse: '2小时前', recentDuration: '3小时', rank: 5, warning: false, agentCount: 40, image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80' },
-  { id: 5, name: '网络安全实训室', asset: 'C栋-302', isAI: true, isOnline: false, hasLiveView: true, recentUse: '5小时前', recentDuration: '2.5小时', rank: 8, warning: false, agentCount: 30, image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80' },
-  { id: 6, name: '智能制造车间', asset: 'D栋-102', isAI: true, isOnline: true, hasLiveView: false, recentUse: '昨天', recentDuration: '8小时', rank: 3, warning: false, agentCount: 80, image: 'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?auto=format&fit=crop&w=800&q=80' },
-  { id: 7, name: '嵌入式系统实验室', asset: 'A栋-405', isAI: true, isOnline: true, hasLiveView: true, recentUse: '30分钟前', recentDuration: '1.5小时', rank: 4, warning: false, agentCount: 20, image: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=800&q=80' },
-  { id: 8, name: '机器人实训基地', asset: 'D栋-201', isAI: true, isOnline: false, hasLiveView: true, recentUse: '2天前', recentDuration: '5小时', rank: 10, warning: false, agentCount: 15, image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80' },
-  { id: 9, name: '云计算实训中心', asset: 'B栋-501', isAI: true, isOnline: true, hasLiveView: false, recentUse: '1小时前', recentDuration: '6小时', rank: 6, warning: false, agentCount: 50, image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80' },
-  { id: 10, name: '虚拟现实实验室', asset: 'C栋-404', isAI: true, isOnline: true, hasLiveView: true, recentUse: '4小时前', recentDuration: '2小时', rank: 12, warning: false, agentCount: 12, image: 'https://images.unsplash.com/photo-1478416272538-5f7e51dc5400?auto=format&fit=crop&w=800&q=80' },
-  { id: 11, name: '深度学习计算中心', asset: 'B栋-305', isAI: true, isOnline: true, hasLiveView: true, recentUse: '20分钟前', recentDuration: '5小时', rank: 7, warning: false, agentCount: 35, image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc91?auto=format&fit=crop&w=800&q=80' },
-  { id: 12, name: '自然语言处理实验室', asset: 'A栋-201', isAI: true, isOnline: true, hasLiveView: true, recentUse: '2小时前', recentDuration: '3.5小时', rank: 9, warning: false, agentCount: 25, image: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=80' },
-  { id: 13, name: '无人驾驶模拟室', asset: 'D栋-301', isAI: true, isOnline: true, hasLiveView: true, recentUse: '45分钟前', recentDuration: '4小时', rank: 11, warning: false, agentCount: 18, image: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=800&q=80' },
-  { id: 14, name: '物联网创新实验室', asset: 'A栋-303', isAI: true, isOnline: false, hasLiveView: true, recentUse: '3天前', recentDuration: '2小时', rank: 16, warning: true, agentCount: 22, image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80' },
-  { id: 15, name: '边缘计算实训室', asset: 'B栋-401', isAI: true, isOnline: true, hasLiveView: true, recentUse: '1.5小时前', recentDuration: '3小时', rank: 13, warning: false, agentCount: 28, image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80' },
-  { id: 16, name: 'AR/VR 交互实验室', asset: 'C栋-405', isAI: true, isOnline: true, hasLiveView: false, recentUse: '5小时前', recentDuration: '1.5小时', rank: 14, warning: false, agentCount: 10, image: 'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?auto=format&fit=crop&w=800&q=80' },
-  { id: 17, name: '区块链应用中心', asset: 'B栋-206', isAI: true, isOnline: false, hasLiveView: true, recentUse: '1周前', recentDuration: '1小时', rank: 18, warning: true, agentCount: 15, image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=800&q=80' },
-  { id: 18, name: '智慧医疗实验室', asset: 'A栋-501', isAI: true, isOnline: true, hasLiveView: false, recentUse: '3小时前', recentDuration: '2.5小时', rank: 17, warning: false, agentCount: 20, image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80' },
+  { id: 1, name: '物联网综合实训室', assetId: 7, asset: 'A栋-101', isAI: true, isOnline: true, hasLiveView: true, recentUse: '10分钟前', recentDuration: '2小时', rank: 1, warning: false, agentCount: 24, image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80' },
+  { id: 7, name: '嵌入式系统实验室', assetId: 8, asset: 'A栋-102', isAI: true, isOnline: true, hasLiveView: true, recentUse: '30分钟前', recentDuration: '1.5小时', rank: 4, warning: false, agentCount: 20, image: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=800&q=80' },
+  { id: 2, name: '人工智能基础实验室', assetId: 6, asset: 'B栋-205', isAI: true, isOnline: true, hasLiveView: true, recentUse: '1小时前', recentDuration: '4小时', rank: 2, warning: false, agentCount: 30, image: 'https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&w=800&q=80' },
+  { id: 4, name: '大数据分析实训室', assetId: 12, asset: 'B栋-402', isAI: true, isOnline: true, hasLiveView: true, recentUse: '2小时前', recentDuration: '3小时', rank: 5, warning: false, agentCount: 40, image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80' },
+  { id: 11, name: '深度学习计算中心', assetId: 10, asset: 'A栋-305', isAI: true, isOnline: true, hasLiveView: true, recentUse: '20分钟前', recentDuration: '5小时', rank: 7, warning: false, agentCount: 35, image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc91?auto=format&fit=crop&w=800&q=80' },
+  { id: 13, name: '机器人实训基地', assetId: 15, asset: 'C栋-101', isAI: true, isOnline: true, hasLiveView: true, recentUse: '45分钟前', recentDuration: '4小时', rank: 11, warning: false, agentCount: 18, image: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=800&q=80' },
+  { id: 9, name: 'AI 计算实验中心', assetId: 9, asset: 'A栋-301', isAI: true, isOnline: true, hasLiveView: false, recentUse: '1小时前', recentDuration: '6小时', rank: 6, warning: false, agentCount: 50, image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80' },
+  { id: 6, name: '智能制造柔性车间', assetId: 6, asset: 'B栋-205', isAI: true, isOnline: true, hasLiveView: false, recentUse: '昨天', recentDuration: '8小时', rank: 3, warning: false, agentCount: 80, image: 'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?auto=format&fit=crop&w=800&q=80' },
+  { id: 3, name: '工业互联网实训中心', assetId: 5, asset: 'B栋-2层', isAI: false, isOnline: false, hasLiveView: false, recentUse: '3天前', recentDuration: '1小时', rank: 15, warning: true, agentCount: 0, image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80' },
 ];
 
 const initialTerminals = [
@@ -41,12 +32,23 @@ const mockLogs = [
 ];
 
 const initialAssets = [
-  { id: 1, name: 'A栋教学楼', parentId: null, remarks: '主教学楼' },
-  { id: 2, name: '3层', parentId: 1, remarks: '计算机学院' },
-  { id: 3, name: '301实训室', parentId: 2, remarks: '物联网综合实训室' },
-  { id: 4, name: 'B栋实验楼', parentId: null, remarks: '实验大楼' },
-  { id: 5, name: '2层', parentId: 4, remarks: '人工智能学院' },
-  { id: 6, name: '205实验室', parentId: 5, remarks: '人工智能基础实验室' },
+  { id: 1, name: 'A栋 智能教学楼', parentId: null, remarks: '主教学区' },
+  { id: 2, name: '1层 基础实验区', parentId: 1, remarks: '计算机学院' },
+  { id: 7, name: '101 物联网实训室', parentId: 2, remarks: '智能感知中心' },
+  { id: 8, name: '102 嵌入式实验室', parentId: 2, remarks: '微机原理' },
+  { id: 3, name: '3层 创新孵化区', parentId: 1, remarks: '人工智能学院' },
+  { id: 9, name: '301 AI 计算中心', parentId: 3, remarks: '高性能计算' },
+  { id: 10, name: '305 深度学习中心', parentId: 3, remarks: '模型训练' },
+  
+  { id: 4, name: 'B栋 科研实验楼', parentId: null, remarks: '科研与前沿技术' },
+  { id: 5, name: '2层 工业互联区', parentId: 4, remarks: '智能制造学院' },
+  { id: 6, name: '205 智能柔性车间', parentId: 5, remarks: '工业4.0示范' },
+  { id: 11, name: '4层 数据科学区', parentId: 4, remarks: '大数据中心' },
+  { id: 12, name: '402 大数据实训室', parentId: 11, remarks: '数据挖掘' },
+  
+  { id: 13, name: 'C栋 产教集聚中心', parentId: null, remarks: '校企合作' },
+  { id: 14, name: '1层 机器人基地', parentId: 13, remarks: '自动化学院' },
+  { id: 15, name: '101 协作机器人室', parentId: 14, remarks: '人机协作' },
 ];
 
 export default function AILab() {
@@ -57,6 +59,8 @@ export default function AILab() {
   const [sortBy, setSortBy] = useState('usage');
   const [visibleCount, setVisibleCount] = useState(18);
   const [selectedLiveLab, setSelectedLiveLab] = useState<any>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'online' | 'offline'>('all');
+  const [warningFilter, setWarningFilter] = useState<boolean>(false);
 
   // Terminal Management State
   const [terminalsList, setTerminalsList] = useState(initialTerminals);
@@ -158,6 +162,11 @@ export default function AILab() {
     );
   };
 
+  const getDescendants = (pId: number): number[] => {
+    const kids = assets.filter(x => x.parentId === pId).map(x => x.id);
+    return [...kids, ...kids.flatMap(getDescendants)];
+  };
+
   const renderAssetTree = (parentId: number | null = null, level = 0) => {
     const children = assets.filter(a => a.parentId === parentId);
     if (children.length === 0) return null;
@@ -169,13 +178,8 @@ export default function AILab() {
           const isExpanded = expandedAssetIds.includes(asset.id);
           const isSelected = selectedAssetIds.includes(asset.id);
 
-          const getDescendants = (pId: number): number[] => {
-            const kids = assets.filter(x => x.parentId === pId).map(x => x.id);
-            return [...kids, ...kids.flatMap(getDescendants)];
-          };
           const relatedIds = [asset.id, ...getDescendants(asset.id)];
-          const relatedNames = relatedIds.map(id => assets.find(a => a.id === id)?.name).filter(Boolean) as string[];
-          const labCount = labs.filter(lab => relatedNames.some(name => lab.asset.includes(name) || lab.name.includes(name))).length;
+          const labCount = labs.filter(lab => relatedIds.includes(lab.assetId || 0)).length;
 
           return (
             <div key={asset.id}>
@@ -202,8 +206,8 @@ export default function AILab() {
                 <input 
                   type="checkbox" 
                   checked={isSelected} 
-                  onChange={() => {}} 
-                  className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/50"
+                  onChange={() => toggleAssetSelection(asset.id)} 
+                  className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/50 cursor-pointer"
                   onClick={(e) => e.stopPropagation()}
                 />
                 <span className="text-sm flex-1 truncate">{asset.name}</span>
@@ -230,11 +234,16 @@ export default function AILab() {
       selectedAssetIds.forEach(id => {
         allSelectedIds = [...allSelectedIds, id, ...getDescendants(id)];
       });
-      const relatedNames = allSelectedIds.map(id => assets.find(a => a.id === id)?.name).filter(Boolean) as string[];
-      matchesAssets = relatedNames.some(name => lab.asset.includes(name) || lab.name.includes(name));
+      matchesAssets = allSelectedIds.includes(lab.assetId || 0);
     }
     
-    return matchesSearch && matchesAssets;
+    const matchesStatus = statusFilter === 'all' || 
+                         (statusFilter === 'online' && lab.isOnline) ||
+                         (statusFilter === 'offline' && !lab.isOnline);
+                         
+    const matchesWarning = !warningFilter || lab.warning;
+
+    return matchesSearch && matchesAssets && matchesStatus && matchesWarning;
   }).sort((a, b) => {
     if (sortBy === 'usage') return a.rank - b.rank;
     if (sortBy === 'duration') return parseFloat(b.recentDuration) - parseFloat(a.recentDuration);
@@ -249,26 +258,35 @@ export default function AILab() {
     const childAssets = assets.filter(a => a.parentId === parentId);
     let childLabs: any[] = [];
     if (parentId !== null) {
-      const pAsset = assets.find(a => a.id === parentId);
-      if (pAsset) {
-        childLabs = labs.filter(l => (l.asset.includes(pAsset.name) || l.name.includes(pAsset.name)));
-      }
+      childLabs = labs.filter(l => l.assetId === parentId);
     }
     if (childAssets.length === 0 && childLabs.length === 0) return null;
+
+    const getTerminalsForAsset = (id: number): number => {
+      const descendants = [id, ...getDescendants(id)];
+      const relatedLabNames = labs.filter(l => descendants.includes(l.assetId || 0)).map(l => l.name);
+      return terminalsList.filter(t => relatedLabNames.includes(t.lab)).length;
+    };
+
+    const getTerminalsForLab = (labName: string): number => {
+      return terminalsList.filter(t => t.lab === labName).length;
+    };
 
     return (
       <div className={cn("space-y-1", level > 0 && "ml-4 border-l border-slate-100 pl-2 mt-1")}>
         {childAssets.map(asset => {
           const isSelected = selectedTerminalTreeIds.includes(`a_${asset.id}`);
+          const count = getTerminalsForAsset(asset.id);
           return (
             <div key={`a_${asset.id}`}>
               <div 
-                className={cn("flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors", isSelected ? "bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] font-bold" : "hover:bg-slate-50 text-slate-600")}
+                className={cn("flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors group", isSelected ? "bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] font-bold" : "hover:bg-slate-50 text-slate-600")}
                 onClick={() => toggleTerminalTreeSelection(`a_${asset.id}`)}
               >
-                <input type="checkbox" checked={isSelected} readOnly className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)]" onClick={(e) => e.stopPropagation()}/>
+                <input type="checkbox" checked={isSelected} onChange={() => toggleTerminalTreeSelection(`a_${asset.id}`)} className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)] cursor-pointer" onClick={(e) => e.stopPropagation()}/>
                 <FolderTree className="w-3.5 h-3.5" />
                 <span className="text-sm flex-1 truncate">{asset.name}</span>
+                <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-bold">{count}</span>
               </div>
               {renderMixedTreeForTerminals(asset.id, level + 1)}
             </div>
@@ -276,10 +294,12 @@ export default function AILab() {
         })}
         {childLabs.map(lab => {
           const isSelected = selectedTerminalTreeIds.includes(`l_${lab.id}`);
+          const count = getTerminalsForLab(lab.name);
           return (
-            <div key={`l_${lab.id}`} className={cn("flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors ml-4", isSelected ? "bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] font-bold" : "hover:bg-slate-50 text-slate-500")} onClick={() => toggleTerminalTreeSelection(`l_${lab.id}`)}>
-              <input type="checkbox" checked={isSelected} readOnly className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/50" onClick={(e) => e.stopPropagation()}/>
-              <span className="text-sm truncate opacity-90">{lab.name}</span>
+            <div key={`l_${lab.id}`} className={cn("flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors ml-4 group", isSelected ? "bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] font-bold" : "hover:bg-slate-50 text-slate-500")} onClick={() => toggleTerminalTreeSelection(`l_${lab.id}`)}>
+              <input type="checkbox" checked={isSelected} onChange={() => toggleTerminalTreeSelection(`l_${lab.id}`)} className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/50 cursor-pointer" onClick={(e) => e.stopPropagation()}/>
+              <span className="text-sm truncate opacity-90 flex-1">{lab.name}</span>
+              <span className="text-[10px] bg-slate-50 px-1.5 py-0.5 rounded text-slate-400 font-medium group-hover:text-[var(--brand-coral)] group-hover:bg-[var(--brand-coral)]/5">{count}</span>
             </div>
           )
         })}
@@ -309,13 +329,8 @@ export default function AILab() {
         const belongsToSelectedAsset = selectedTerminalTreeIds.some(idStr => {
           if (idStr.startsWith('a_')) {
             const assetId = Number(idStr.replace('a_', ''));
-            const getDescendants = (pId: number): number[] => {
-              const kids = assets.filter(x => x.parentId === pId).map(x => x.id);
-              return [...kids, ...kids.flatMap(getDescendants)];
-            };
-            const relatedIds = [assetId, ...getDescendants(assetId)];
-            const relatedNames = relatedIds.map(rId => assets.find(a => a.id === rId)?.name).filter(Boolean) as string[];
-            return relatedNames.some(name => termLabObj.asset.includes(name) || termLabObj.name.includes(name));
+            const ancestorIds = [assetId, ...getDescendants(assetId)];
+            return ancestorIds.includes(termLabObj.assetId || 0);
           }
           return false;
         });
@@ -371,8 +386,8 @@ export default function AILab() {
           </td>
           <td className="px-6 py-4 text-slate-500">{asset.remarks || '-'}</td>
           <td className="px-6 py-4 text-right">
-            <button onClick={() => handleOpenAssetModal(asset)} className="text-purple-600 hover:text-purple-700 font-medium mr-4">修改</button>
-            <button onClick={() => handleDeleteAsset(asset.id)} className="text-red-600 hover:text-red-700 font-medium">删除</button>
+            <button onClick={() => handleOpenAssetModal(asset)} className="text-[var(--brand-coral)] hover:text-[var(--brand-coral)]/80 font-medium mr-4 transition-colors">修改</button>
+            <button onClick={() => handleDeleteAsset(asset.id)} className="text-red-600 hover:text-red-700 font-medium transition-colors">删除</button>
           </td>
         </tr>
       );
@@ -448,38 +463,46 @@ export default function AILab() {
               transition={{ duration: 0.2 }}
             >
               {activeTab === 'labs' ? (
-                <div className="flex gap-6 items-start h-full pt-6">
-                  {/* Left Sidebar for Asset Tree */}
-                  <div className="w-64 bg-white border border-slate-200 rounded-2xl p-4 sticky top-6 shrink-0 shadow-sm overflow-hidden flex flex-col max-h-[80vh]">
-                    <div className="flex items-center justify-between mb-4 shrink-0">
-                      <h3 className="text-sm font-bold text-slate-900 border-l-4 border-[var(--brand-coral)] pl-2">资产导航</h3>
-                      {selectedAssetIds.length > 0 && <button onClick={() => setSelectedAssetIds([])} className="text-xs text-[var(--brand-coral)] hover:text-[var(--brand-coral)]/80 font-medium">清除选择</button>}
+                  <div className="flex gap-8 items-start h-full pt-8">
+                    {/* Left Sidebar for Asset Tree - Aligned with list contents */}
+                    <div className="w-72 bg-white border border-slate-200 rounded-3xl p-5 sticky top-24 shrink-0 shadow-sm overflow-hidden flex flex-col max-h-[calc(100vh-12rem)] group/assets">
+                      <div className="flex items-center justify-between mb-6 shrink-0">
+                        <h3 className="text-sm font-black text-slate-900 border-l-4 border-[var(--brand-coral)] pl-3 uppercase tracking-wider">资产导航</h3>
+                        <div className="flex items-center gap-2">
+                           <span className="text-[10px] font-bold text-slate-400">{assets.length} 节点</span>
+                           {selectedAssetIds.length > 0 && <button onClick={() => setSelectedAssetIds([])} className="text-xs text-[var(--brand-coral)] hover:underline font-bold">清空</button>}
+                        </div>
+                      </div>
+                      <div className="flex-1 overflow-y-auto custom-scrollbar-thin pr-1">
+                        {renderAssetTree()}
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-slate-100 shrink-0">
+                         <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p className="text-[10px] text-slate-400 leading-relaxed font-medium">提示：勾选层级节点可快速筛选该区域下的所有实训室资源。</p>
+                         </div>
+                      </div>
                     </div>
-                    <div className="flex-1 overflow-y-auto pr-2">
-                      {renderAssetTree()}
-                    </div>
-                  </div>
 
                   {/* Right Content */}
                   <div className="flex-1 space-y-6 min-w-0">
                     {/* Sticky Filter Bar */}
-                    <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md py-4 -mx-4 px-4 rounded-b-2xl">
+                    <div className="sticky top-0 z-20 bg-[var(--brand-warm)]/80 backdrop-blur-md py-4 -mx-4 px-4 rounded-b-2xl">
                       <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
                       <div className="flex items-center gap-3">
-                        <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-[var(--brand-coral)] text-white rounded-xl text-sm font-bold hover:bg-[var(--brand-coral)]/90 transition-all shadow-lg shadow-[var(--brand-coral)]/20">
+                        <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-[var(--brand-coral)] text-white rounded-xl text-sm font-bold hover:brightness-110 transition-all shadow-lg shadow-[var(--brand-coral)]/20">
                           <Plus className="w-4 h-4" /> 新增实训室
                         </button>
                         <div className="h-6 w-px bg-slate-200 mx-1" />
                         <div className="flex bg-slate-100 p-1 rounded-xl">
                           <button 
                             onClick={() => setViewMode('grid')}
-                            className={cn("p-1.5 rounded-lg transition-all", viewMode === 'grid' ? "bg-white shadow-sm text-purple-600" : "text-slate-400 hover:text-slate-600")}
+                            className={cn("p-1.5 rounded-lg transition-all", viewMode === 'grid' ? "bg-white shadow-sm text-[var(--brand-coral)]" : "text-slate-400 hover:text-slate-600")}
                           >
                             <LayoutGrid className="w-4 h-4" />
                           </button>
                           <button 
                             onClick={() => setViewMode('list')}
-                            className={cn("p-1.5 rounded-lg transition-all", viewMode === 'list' ? "bg-white shadow-sm text-purple-600" : "text-slate-400 hover:text-slate-600")}
+                            className={cn("p-1.5 rounded-lg transition-all", viewMode === 'list' ? "bg-white shadow-sm text-[var(--brand-coral)]" : "text-slate-400 hover:text-slate-600")}
                           >
                             <List className="w-4 h-4" />
                           </button>
@@ -487,26 +510,42 @@ export default function AILab() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-                        {/* Flattened Sorting */}
-                        <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
-                          <button 
-                            onClick={() => setSortBy('usage')}
-                            className={cn("px-3 py-1.5 text-xs font-medium rounded-lg transition-all", sortBy === 'usage' ? "bg-white shadow-sm text-purple-600" : "text-slate-500 hover:text-slate-700")}
-                          >
-                            按使用率
-                          </button>
-                          <button 
-                            onClick={() => setSortBy('duration')}
-                            className={cn("px-3 py-1.5 text-xs font-medium rounded-lg transition-all", sortBy === 'duration' ? "bg-white shadow-sm text-purple-600" : "text-slate-500 hover:text-slate-700")}
-                          >
-                            按时长
-                          </button>
-                          <button 
-                            onClick={() => setSortBy('recent')}
-                            className={cn("px-3 py-1.5 text-xs font-medium rounded-lg transition-all", sortBy === 'recent' ? "bg-white shadow-sm text-purple-600" : "text-slate-500 hover:text-slate-700")}
-                          >
-                            按最近
-                          </button>
+                        <div className="flex items-center gap-4 border-l border-slate-200 pl-4 h-8">
+                           <div className="flex bg-slate-100 p-1 rounded-xl h-full">
+                              <button 
+                                onClick={() => setStatusFilter('all')}
+                                className={cn("px-3 text-[11px] font-bold rounded-lg transition-all flex items-center", statusFilter === 'all' ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}
+                              >
+                                全部状态
+                              </button>
+                              <button 
+                                onClick={() => setStatusFilter('online')}
+                                className={cn("px-3 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1.5", statusFilter === 'online' ? "bg-white shadow-sm text-emerald-600" : "text-slate-400 hover:text-slate-600")}
+                              >
+                                <div className={cn("w-1.5 h-1.5 rounded-full bg-emerald-500", statusFilter === 'online' && "animate-pulse")} />
+                                在线
+                              </button>
+                              <button 
+                                onClick={() => setStatusFilter('offline')}
+                                className={cn("px-3 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1.5", statusFilter === 'offline' ? "bg-white shadow-sm text-slate-600" : "text-slate-400 hover:text-slate-600")}
+                              >
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                                离线
+                              </button>
+                           </div>
+
+                           <button 
+                             onClick={() => setWarningFilter(!warningFilter)}
+                             className={cn(
+                               "h-full px-3 rounded-xl text-[11px] font-bold transition-all flex items-center gap-2 border",
+                               warningFilter 
+                                ? "bg-amber-50 border-amber-200 text-amber-600 shadow-sm" 
+                                : "bg-white border-slate-200 text-slate-500 hover:border-amber-200 hover:text-amber-500"
+                             )}
+                           >
+                             <AlertTriangle className={cn("w-3.5 h-3.5", warningFilter && "animate-bounce")} />
+                             长期未使用
+                           </button>
                         </div>
 
                         <div className="flex items-center gap-2 flex-1 lg:flex-none">
@@ -517,79 +556,131 @@ export default function AILab() {
                               placeholder="搜索名称..."
                               value={searchQuery}
                               onChange={(e) => setSearchQuery(e.target.value)}
-                              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+                              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/30 focus:bg-white transition-all"
                             />
                           </div>
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Activity Feed for Asset Selection */}
+                    <AnimatePresence>
+                      {selectedAssetIds.length > 0 && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-3 overflow-hidden"
+                        >
+                          <div className="flex flex-wrap items-center gap-2 px-1">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">当前筛选资产:</span>
+                            {selectedAssetIds.map(id => {
+                              const assetName = assets.find(a => a.id === id)?.name;
+                              return (
+                                <span key={id} className="flex items-center gap-1 px-2 py-1 bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] rounded-full text-xs font-bold border border-[var(--brand-coral)]/20 animate-in fade-in zoom-in duration-300">
+                                  {assetName}
+                                  <button onClick={() => toggleAssetSelection(id)} className="hover:text-red-500"><XCircle className="w-3 h-3" /></button>
+                                </span>
+                              );
+                            })}
+                            <button onClick={() => setSelectedAssetIds([])} className="text-[10px] font-bold text-slate-400 hover:text-[var(--brand-coral)] underline underline-offset-4 transition-colors ml-1">重置所有</button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Grid / List View */}
                   {viewMode === 'grid' ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                       {filteredLabs.slice(0, visibleCount).map(lab => (
                         <div 
                           key={lab.id} 
                           className={cn(
-                            "bg-white rounded-2xl overflow-hidden border transition-all group relative",
-                            lab.isOnline ? "border-emerald-400 shadow-lg shadow-emerald-100/50" : "border-slate-200 shadow-sm",
-                            lab.isOnline && "ring-2 ring-emerald-400/20 ring-offset-0"
+                            "bg-white rounded-3xl overflow-hidden border transition-all duration-500 group relative flex flex-col h-full",
+                            lab.isOnline ? "border-emerald-400/50 shadow-xl shadow-emerald-100/30" : "border-slate-200 shadow-sm hover:shadow-md grayscale-[0.8] hover:grayscale-0",
+                            lab.warning && !lab.isOnline && "border-amber-400 shadow-xl shadow-amber-100/50 grayscale-0"
                           )}
                         >
-                          <div className="aspect-[16/10] relative overflow-hidden bg-slate-100">
-                            <img src={lab.image} alt={lab.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                            {lab.isOnline && (
-                              <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center gap-1 shadow-sm z-10">
-                                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> 在线
+                          {/* Top Tag Bar */}
+                          <div className="absolute top-3 left-3 right-3 z-10 flex justify-between items-center pointer-events-none">
+                            {lab.isOnline ? (
+                              <div className="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-full flex items-center gap-1.5 shadow-lg shadow-emerald-500/30">
+                                <span className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-100 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                                </span>
+                                在线
                               </div>
+                            ) : (
+                                <div className="px-2.5 py-1 bg-slate-600/80 backdrop-blur-md text-white text-[10px] font-black rounded-full flex items-center gap-1.5 uppercase tracking-wider">
+                                  <XCircle className="w-3.5 h-3.5" /> 离线
+                                </div>
                             )}
+
                             {lab.warning && (
-                              <div className="absolute top-2 right-2 px-2 py-0.5 bg-amber-500/90 backdrop-blur-md text-white text-[10px] font-bold rounded-full flex items-center gap-1 z-10">
-                                <AlertTriangle className="w-3 h-3" /> 长期未使用
+                              <div className="px-2.5 py-1 bg-amber-500 text-white text-[10px] font-black rounded-full flex items-center gap-1.5 shadow-lg shadow-amber-500/40 animate-pulse">
+                                <AlertTriangle className="w-3.5 h-3.5" /> 长期未使用
                               </div>
-                            )}
-                            {/* Gradient Border Overlay for Online Labs */}
-                            {lab.isOnline && (
-                              <div className="absolute inset-0 border-2 border-transparent bg-gradient-to-br from-emerald-400/20 to-transparent pointer-events-none" />
                             )}
                           </div>
-                          <div className="p-3">
-                            <div className="flex justify-between items-start mb-1">
-                              <h3 className="text-xs font-bold text-slate-900 line-clamp-1" title={lab.name}>{lab.name}</h3>
-                            </div>
-                            <div className="flex items-center gap-1.5 mb-2">
-                              <span className="text-[9px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{lab.asset}</span>
-                              <span className="text-[9px] text-slate-400">•</span>
-                              <span className="text-[9px] text-slate-500">{lab.agentCount} 台</span>
-                            </div>
-                            
-                            <div className="flex flex-col gap-1 text-[10px] text-slate-600 mb-3">
-                              <div className="flex items-center gap-2">
-                                <Clock className="w-2.5 h-2.5 text-slate-400" />
-                                <span className="truncate">{lab.recentUse}</span>
+
+                          <div className="aspect-[16/10] relative overflow-hidden bg-slate-900">
+                             <img src={lab.image} alt={lab.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+                             
+                             {/* Gradient Overlay */}
+                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-60" />
+                             
+                             {/* Stream Effect for Online */}
+                             {lab.isOnline && (
+                               <div className="absolute inset-0 border-[3px] border-emerald-400/30 rounded-3xl animate-pulse pointer-events-none" />
+                             )}
+                          </div>
+
+                          <div className="p-4 flex flex-col flex-1">
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start mb-1">
+                                <h3 className="text-sm font-black text-slate-900 leading-tight group-hover:text-[var(--brand-coral)] transition-colors">{lab.name}</h3>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Activity className="w-2.5 h-2.5 text-slate-400" />
-                                <span className="truncate">使用率第 {lab.rank} 名</span>
+                              <div className="flex items-center gap-1.5 mb-4">
+                                <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200/50">{lab.asset}</span>
+                                <span className="text-[10px] text-slate-300">•</span>
+                                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">{lab.agentCount} 终端设备</span>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-2 mb-4">
+                                <div className={cn(
+                                  "p-2 rounded-2xl flex flex-col gap-0.5 transition-colors",
+                                  lab.isOnline ? "bg-emerald-50" : "bg-slate-50"
+                                )}>
+                                  <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">最近使用</span>
+                                  <span className="text-[11px] font-bold text-slate-700 truncate">{lab.recentUse}</span>
+                                </div>
+                                <div className={cn(
+                                  "p-2 rounded-2xl flex flex-col gap-0.5 transition-colors",
+                                  lab.isOnline ? "bg-emerald-50" : "bg-slate-50"
+                                )}>
+                                  <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">活跃排名</span>
+                                  <span className="text-[11px] font-bold text-slate-700">NO.{lab.rank} 位</span>
+                                </div>
                               </div>
                             </div>
 
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 shrink-0">
                               <button 
                                 disabled={!lab.hasLiveView}
                                 onClick={() => setSelectedLiveLab(lab)}
                                 className={cn(
-                                  "flex-1 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5",
+                                  "flex-1 py-2.5 rounded-2xl text-[11px] font-black transition-all flex items-center justify-center gap-2",
                                   lab.hasLiveView 
-                                    ? "bg-purple-600 text-white hover:bg-purple-700 shadow-sm shadow-purple-200" 
-                                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                                   ? "bg-slate-900 text-white hover:bg-[var(--brand-coral)] shadow-lg shadow-slate-200" 
+                                   : "bg-slate-100 text-slate-400 cursor-not-allowed"
                                 )}
                               >
-                                <Video className="w-3.5 h-3.5" /> 实时画面
+                                <Video className="w-4 h-4" /> 实时画面
                               </button>
-                              <button className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-lg transition-colors border border-slate-200">
-                                <Settings className="w-3.5 h-3.5" />
+                              <button className="p-2.5 bg-white hover:bg-slate-50 text-slate-500 rounded-2xl transition-all border border-slate-200 hover:border-[var(--brand-coral)] hover:text-[var(--brand-coral)]">
+                                <Settings className="w-4 h-4" />
                               </button>
                             </div>
                           </div>
@@ -626,17 +717,17 @@ export default function AILab() {
                               <td className="px-6 py-4">
                                 <div className="flex items-center gap-2">
                                   {lab.isOnline ? (
-                                    <span className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold border border-emerald-100">
-                                      <div className="w-1 h-1 rounded-full bg-emerald-500" /> 在线
+                                    <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black border border-emerald-200 shadow-sm">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 在线
                                     </span>
                                   ) : (
-                                    <span className="px-2 py-0.5 bg-slate-100 text-slate-400 rounded-full text-[10px] font-bold border border-slate-200">
-                                      离线
+                                    <span className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 text-slate-500 rounded-full text-[10px] font-black border border-slate-200">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-slate-300" /> 离线
                                     </span>
                                   )}
                                   {lab.warning && (
-                                    <span className="px-2 py-0.5 bg-amber-50 text-amber-600 rounded-full text-[10px] font-bold border border-amber-100">
-                                      闲置
+                                    <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[10px] font-black border border-amber-200 animate-pulse">
+                                      <AlertTriangle className="w-3.5 h-3.5" /> 长期未使用
                                     </span>
                                   )}
                                 </div>
@@ -648,7 +739,7 @@ export default function AILab() {
                                     onClick={() => setSelectedLiveLab(lab)}
                                     className={cn(
                                       "p-2 rounded-lg transition-all",
-                                      lab.hasLiveView ? "text-purple-600 hover:bg-purple-50" : "text-slate-300 cursor-not-allowed"
+                                      lab.hasLiveView ? "text-[var(--brand-coral)] hover:bg-[var(--brand-coral)]/10" : "text-slate-300 cursor-not-allowed"
                                     )}
                                   >
                                     <Video className="w-4 h-4" />
@@ -681,8 +772,8 @@ export default function AILab() {
                 {/* Left Sidebar for Mixed Tree */}
                 <div className="w-64 bg-white border border-slate-200 rounded-2xl p-4 sticky top-6 shrink-0 shadow-sm overflow-hidden flex flex-col max-h-[80vh]">
                   <div className="flex items-center justify-between mb-4 shrink-0">
-                    <h3 className="text-sm font-bold text-slate-900 border-l-4 border-purple-600 pl-2">实训室资产</h3>
-                    {selectedTerminalTreeIds.length > 0 && <button onClick={() => setSelectedTerminalTreeIds([])} className="text-xs text-purple-600 hover:text-purple-700 font-medium">清除选择</button>}
+                    <h3 className="text-sm font-bold text-slate-900 border-l-4 border-[var(--brand-coral)] pl-2">实训室资产</h3>
+                    {selectedTerminalTreeIds.length > 0 && <button onClick={() => setSelectedTerminalTreeIds([])} className="text-xs text-[var(--brand-coral)] hover:text-[var(--brand-coral)]/80 font-medium">清除选择</button>}
                   </div>
                   <div className="flex-1 overflow-y-auto pr-2">
                     {renderMixedTreeForTerminals()}
@@ -766,7 +857,7 @@ export default function AILab() {
                               <div className="text-xs text-slate-500">已开机 {term.bootCount} 次</div>
                             </td>
                             <td className="px-6 py-4 text-right">
-                              <div className="flex justify-end gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex justify-end gap-2 opacity-100 transition-opacity">
                                 <button onClick={() => setTerminalLogModalData(term)} className="px-2 py-1.5 text-xs font-bold text-[var(--brand-coral)] bg-[var(--brand-coral)]/5 hover:bg-[var(--brand-coral)]/10 rounded-lg transition-colors border border-[var(--brand-coral)]/10 flex items-center gap-1"><FileText className="w-3.5 h-3.5"/> 日志</button>
                                 <button onClick={() => setChangeLabModalData(term)} className="px-2 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-100 flex items-center gap-1"><ArrowRightLeft className="w-3.5 h-3.5"/> 迁移</button>
                               </div>
@@ -795,7 +886,7 @@ export default function AILab() {
                       placeholder="搜索资产名称..."
                       value={assetSearchQuery}
                       onChange={(e) => setAssetSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+                      className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/30 focus:bg-white transition-all"
                     />
                   </div>
                 </div>
@@ -923,7 +1014,7 @@ export default function AILab() {
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">实训室概况介绍</label>
-                    <textarea className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 resize-none" placeholder="建设背景、用途介绍等..." />
+                    <textarea className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-coral)]/30 h-24 resize-none" placeholder="建设背景、用途介绍等..." />
                   </div>
                 </div>
                 <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">

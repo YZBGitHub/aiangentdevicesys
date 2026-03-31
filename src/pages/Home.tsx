@@ -13,17 +13,17 @@ export default function Home() {
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#E85D3A]/25 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" />
           <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-[#4A90D9]/25 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000" />
           <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-[#F5A623]/25 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000" />
-          
+
           {/* Hardware Device Image - Right */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 0.6, x: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
             className="absolute top-1/4 right-[5%] w-[600px] h-[600px] pointer-events-none"
           >
-            <img 
-              src="https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80" 
-              alt="Hardware Device" 
+            <img
+              src="https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80"
+              alt="Hardware Device"
               className="w-full h-full object-cover mix-blend-luminosity opacity-60"
               referrerPolicy="no-referrer"
               style={{ maskImage: 'radial-gradient(circle, black 20%, transparent 70%)', WebkitMaskImage: 'radial-gradient(circle, black 20%, transparent 70%)' }}
@@ -31,15 +31,15 @@ export default function Home() {
           </motion.div>
 
           {/* Hardware Device Image - Left */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 0.5, x: 0 }}
             transition={{ duration: 1, delay: 0.7 }}
             className="absolute bottom-1/4 left-[5%] w-[500px] h-[500px] pointer-events-none"
           >
-            <img 
-              src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80" 
-              alt="Circuit Board" 
+            <img
+              src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"
+              alt="Circuit Board"
               className="w-full h-full object-cover mix-blend-luminosity opacity-50"
               referrerPolicy="no-referrer"
               style={{ maskImage: 'radial-gradient(circle, black 20%, transparent 70%)', WebkitMaskImage: 'radial-gradient(circle, black 20%, transparent 70%)' }}
@@ -56,7 +56,7 @@ export default function Home() {
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 font-display">
               智引硬件实训，<br className="hidden md:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--brand-coral)] to-[var(--brand-amber)]">
-                慧改实训中心
+                慧领职业教学。
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-600 mb-8 font-medium">
@@ -90,7 +90,7 @@ export default function Home() {
               <div className="w-12 h-12 bg-[#4A90D9]/10 rounded-2xl flex items-center justify-center mb-6">
                 <Layers className="w-6 h-6 text-[var(--brand-sky)]" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">一屏连通虚实，智构全能实训场</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">连通虚实，智构全能实训场</h3>
               <p className="text-slate-600 leading-relaxed mb-4">
                 硬件智能体终端集成高清触控屏，通过 MCP 服务连接多类实训设备，实现实训套件的智慧化改造，提升跨专业普适性。
               </p>
@@ -270,18 +270,18 @@ export default function Home() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--brand-amber)]/10 text-[var(--brand-amber)] mb-8 border border-[var(--brand-amber)]/20">
                 <MonitorPlay className="w-8 h-8" />
               </div>
-              
+
               <h2 className="text-4xl lg:text-5xl font-extrabold mb-6 leading-tight font-display">
-                数智孪生实训室：<br/>
+                数智孪生实训室：<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--brand-amber)] to-[var(--brand-coral)]">
                   AI 硬件智能体驱动的科研教学新基建
                 </span>
               </h2>
-              
+
               <p className="text-xl text-slate-300 mb-8 font-medium italic border-l-4 border-[var(--brand-coral)] pl-6 py-2">
                 全时空管理、全维度监测，定义智慧实训新标准
               </p>
-              
+
               <p className="text-lg text-slate-400 leading-relaxed mb-10 font-medium">
                 依托“AI硬件智能体系统”，实训室改造不再是简单的设备堆砌，而是构建一个具备感知、协同、分析能力的闭环系统。通过每实训套件搭配一台智能体终端的建设方案，实现实训环境从物理空间到数字空间的深度融合。
               </p>
@@ -299,7 +299,7 @@ export default function Home() {
                 to="/ai-lab"
                 className="group relative inline-flex items-center gap-3 px-10 py-5 bg-[var(--brand-coral)] text-white rounded-full font-bold transition-all duration-300 shadow-xl shadow-[var(--brand-coral)]/20 hover:scale-105 active:scale-95"
               >
-                进入 AI 实训室 
+                进入 AI 实训室
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
               </Link>
             </motion.div>
@@ -310,9 +310,9 @@ export default function Home() {
       {/* Section 4: Dashboards & Reports — 模块化业务矩阵 */}
       <section className="py-32 bg-[var(--brand-warm)] overflow-hidden relative">
         <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none" />
-        
+
         <div className="max-w-7xl mx-auto px-6 space-y-40 relative z-10">
-          
+
           {/* Dashboard Block (Text Left, Image Right) */}
           <div className="grid lg:grid-cols-12 gap-16 items-center">
             <motion.div
@@ -330,7 +330,7 @@ export default function Home() {
                 <span className="w-8 h-[2px] bg-blue-600/30" />
                 多维感知、时时监测，构建实训教学“数字底座”
               </p>
-              
+
               <div className="grid sm:grid-cols-2 gap-6 mb-12">
                 {[
                   { title: '运营概况看板', desc: '展示全校已接入 AI 硬件智能体的实训室总数、实训套件在线率及年度累计实训人次。' },
@@ -356,7 +356,7 @@ export default function Home() {
                 to="/operation-dashboard"
                 className="group inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
               >
-                查看运营看板 
+                查看运营看板
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </motion.div>
@@ -418,7 +418,7 @@ export default function Home() {
                 <span className="w-8 h-[2px] bg-emerald-600/30" />
                 虚实融合、降本增效，AI 硬件智能体赋能实训新范式
               </p>
-              
+
               <ul className="space-y-4 mb-12">
                 {[
                   { title: '基础建设显性化', desc: '硬件智能体终端管理：记录终端覆盖密度，展示设备与 AI 系统的自动化对接成果。' },
@@ -426,7 +426,7 @@ export default function Home() {
                   { title: '资源运营优化', desc: '设备利用率分析：对比改造前后的设备周转率，展示智能体对实训的加速作用。' },
                   { title: '专业认证支撑', desc: '产教融合技术体系成果：列举支持的职业认证种类及实训完成质量。' }
                 ].map((item, i) => (
-                  <motion.li 
+                  <motion.li
                     key={i}
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -448,7 +448,7 @@ export default function Home() {
                 to="/operation-report"
                 className="group inline-flex items-center gap-2 px-8 py-4 bg-emerald-600 text-white rounded-full font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
               >
-                生成运营报告 
+                生成运营报告
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </motion.div>
@@ -461,7 +461,7 @@ export default function Home() {
       <footer className="bg-[var(--brand-ink)] text-slate-400 py-24 relative overflow-hidden border-t border-white/5">
         {/* 背景微光 */}
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-[var(--brand-coral)]/[0.03] blur-[100px] rounded-full pointer-events-none" />
-        
+
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="grid md:grid-cols-12 gap-16">
             <div className="md:col-span-5">
@@ -471,17 +471,17 @@ export default function Home() {
               <p className="text-base text-slate-400 leading-relaxed max-w-sm font-medium">
                 致力于解决传统硬件实验痛点，依托大模型与硬件智能体终端，为新工科全专业提供智慧实训解决方案。
               </p>
-              
+
               <div className="mt-10 flex gap-4">
-                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[var(--brand-coral)]/20 hover:border-[var(--brand-coral)]/30 transition-all cursor-pointer">
-                   <div className="w-2 h-2 rounded-full bg-[var(--brand-coral)]" />
-                 </div>
-                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[var(--brand-sky)]/20 hover:border-[var(--brand-sky)]/30 transition-all cursor-pointer">
-                   <div className="w-2 h-2 rounded-full bg-[var(--brand-sky)]" />
-                 </div>
-                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[var(--brand-amber)]/20 hover:border-[var(--brand-amber)]/30 transition-all cursor-pointer">
-                   <div className="w-2 h-2 rounded-full bg-[var(--brand-amber)]" />
-                 </div>
+                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[var(--brand-coral)]/20 hover:border-[var(--brand-coral)]/30 transition-all cursor-pointer">
+                  <div className="w-2 h-2 rounded-full bg-[var(--brand-coral)]" />
+                </div>
+                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[var(--brand-sky)]/20 hover:border-[var(--brand-sky)]/30 transition-all cursor-pointer">
+                  <div className="w-2 h-2 rounded-full bg-[var(--brand-sky)]" />
+                </div>
+                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[var(--brand-amber)]/20 hover:border-[var(--brand-amber)]/30 transition-all cursor-pointer">
+                  <div className="w-2 h-2 rounded-full bg-[var(--brand-amber)]" />
+                </div>
               </div>
             </div>
 
@@ -495,7 +495,7 @@ export default function Home() {
                   <li><Link to="/operation-dashboard" className="hover:text-[var(--brand-coral)] transition-colors inline-flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-coral)] scale-0 group-hover:scale-100 transition-transform" />运营看板</Link></li>
                 </ul>
               </div>
-              
+
               <div className="col-span-2 sm:col-span-1">
                 <h4 className="text-white font-black text-lg mb-8 tracking-tight">支持与帮助</h4>
                 <ul className="space-y-4 text-sm font-bold">
@@ -506,14 +506,14 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-24 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex flex-col md:flex-row items-center gap-4 text-sm font-medium">
-               <p>© 2026 UUSIMA / 新大陆科技集团 版权所有</p>
-               <span className="hidden md:block w-1 h-1 rounded-full bg-slate-700" />
-               <p className="text-slate-600">Smart Training Agent System v1.0</p>
+              <p>© 2026 UUSIMA / 新大陆科技集团 版权所有</p>
+              <span className="hidden md:block w-1 h-1 rounded-full bg-slate-700" />
+              <p className="text-slate-600">Smart Training Agent System v1.0</p>
             </div>
-            
+
             <div className="flex gap-8 text-sm font-bold">
               <a href="#" className="hover:text-white transition-colors">隐私政策</a>
               <a href="#" className="hover:text-white transition-colors">服务条款</a>
