@@ -150,214 +150,231 @@ const PIE_COLORS = {
   status: ['#10b981', '#94a3b8', '#ef4444'],
 };
 
-// --- Network Graph Component ---
-function NetworkGraph({ devices, assets }: { devices: any[], assets: any[] }) {
+// --- Helper: Create Text Sprite ---
+function createTextSprite(text: string, color: string = '#ffffff', fontSize: number = 32) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d')!;
+  canvas.width = 512;
+  canvas.height = 128;
+  
+  ctx.font = `bold ${fontSize}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  // Text Shadow for readability
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 4;
+  ctx.fillStyle = color;
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+  const sprite = new THREE.Sprite(spriteMaterial);
+  return sprite;
+}
+
+// --- Campus Scene Component (3D Topology) ---
+function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [hoveredNode, setHoveredNode] = useState<any>(null);
+  const [hoveredInfo, setHoveredInfo] = useState<any>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
     
-    // Clear previous
-    while (container.firstChild) {
-      container.removeChild(container.firstChild);
-    }
-    
-    // 1. Scene setup
+    // 1. Scene & Camera Setup (Daytime)
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0f172a, 0.0018);
+    scene.background = new THREE.Color(0xf1f5f9); // Light slate/blue background
+    scene.fog = new THREE.Fog(0xf1f5f9, 50, 1000);
     
-    // 2. Camera setup
-    const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 2000);
-    camera.position.set(0, 80, 200);
+    const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 2000);
+    camera.position.set(200, 250, 400);
     
-    // 3. Renderer setup
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0); // Transparent to blend with UI
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
     
-    // 4. Controls
+    // 2. Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.autoRotate = false;
-    controls.autoRotateSpeed = 0.15;
-    controls.maxDistance = 500;
-    controls.minDistance = 30;
+    controls.enableZoom = true;
+    controls.enablePan = true;
+    controls.maxDistance = 1500;
+    controls.minDistance = 20;
     
-    // 5. Data structures and Geometry Layout
-    const nodesData: any[] = [];
-    const linksData: any[] = [];
-    
-    // Root Node (School)
-    const rootPos = new THREE.Vector3(0, 0, 0);
-    const rootOnline = devices.filter(d => d.status === 'online').length;
-    nodesData.push({ id: 'root', type: 'root', pos: rootPos, name: '新大陆科技大学', color: 0xc084fc, size: 16, onlineCount: rootOnline, totalCount: devices.length });
-    
-    const R_ASSET = 80;
-    const R_LAB = 40;
-    const R_DEVICE = 18;
-    
-    assets.forEach((asset, i) => {
-      const assetAngle = (i / assets.length) * Math.PI * 2;
-      const assetPos = new THREE.Vector3(
-        rootPos.x + Math.cos(assetAngle) * R_ASSET,
-        rootPos.y, // 扁平环状，取消高低起伏
-        rootPos.z + Math.sin(assetAngle) * R_ASSET
-      );
-      nodesData.push({ id: asset.id, type: 'asset', pos: assetPos, name: asset.name, color: 0x9333ea, size: 10 });
-      linksData.push({ source: rootPos, target: assetPos, color: 0x9333ea });
-      
-      asset.labs.forEach((lab: any, j: number) => {
-        const labAngle = (j / asset.labs.length) * Math.PI * 2 + assetAngle;
-        const labPos = new THREE.Vector3(
-          assetPos.x + Math.cos(labAngle) * R_LAB,
-          assetPos.y, // 扁平环状
-          assetPos.z + Math.sin(labAngle) * R_LAB
-        );
-        nodesData.push({ id: lab.id, type: 'lab', pos: labPos, name: lab.name, color: 0x8b5cf6, size: 7 });
-        linksData.push({ source: assetPos, target: labPos, color: 0x8b5cf6 });
-        
-        let labDevices = devices.filter(d => d.labId === lab.id);
-        if (labDevices.length > 25) labDevices = labDevices.slice(0, 25); // Cap visual density
-        
-        labDevices.forEach((device, k) => {
-          // 圆环分布
-          const devAngle = (k / labDevices.length) * Math.PI * 2 + labAngle;
-          
-          const devPos = new THREE.Vector3(
-            labPos.x + Math.cos(devAngle) * R_DEVICE,
-            labPos.y,
-            labPos.z + Math.sin(devAngle) * R_DEVICE
-          );
-          
-          let color = 0x94a3b8; // offline
-          if (device.status === 'online') color = 0x10b981; // emerald
-          if (device.status === 'abnormal') color = 0xef4444; // red
-          
-          nodesData.push({ 
-            id: device.id, type: 'device', pos: devPos, name: device.name, 
-            status: device.status, color, size: 3,
-            assetName: device.assetName, labName: device.labName, ip: device.ip
-          });
-          linksData.push({ source: labPos, target: devPos, color: color });
-        });
-      });
-    });
-    
-    // 6. Create Meshes
-    const nodeGroup = new THREE.Group();
-    scene.add(nodeGroup);
-    
-    const sphereGeo = new THREE.SphereGeometry(1, 24, 24);
-    const meshes: THREE.Mesh[] = [];
-    
-    nodesData.forEach(nd => {
-      const mat = new THREE.MeshStandardMaterial({ 
-        color: nd.color, 
-        emissive: nd.color,
-        emissiveIntensity: nd.type === 'device' ? 0.6 : 0.3,
-        roughness: 0.2,
-        metalness: 0.8
-      });
-      const mesh = new THREE.Mesh(sphereGeo, mat);
-      mesh.position.copy(nd.pos);
-      mesh.scale.setScalar(nd.size);
-      mesh.userData = nd;
-      
-      // Randomize float phase
-      mesh.userData.floatOffset = Math.random() * Math.PI * 2;
-      mesh.userData.floatSpeed = 0.5 + Math.random() * 1.5;
-      mesh.userData.baseY = nd.pos.y;
-      
-      nodeGroup.add(mesh);
-      meshes.push(mesh);
-      
-      // Add glow to root and online/abnormal devices
-      if (nd.type === 'root' || (nd.type === 'device' && nd.status !== 'offline')) {
-        const glowGeo = new THREE.SphereGeometry(1.4, 16, 16);
-        const glowMat = new THREE.MeshBasicMaterial({ 
-          color: nd.color, 
-          transparent: true, 
-          opacity: nd.type === 'root' ? 0.2 : 0.4, 
-          blending: THREE.AdditiveBlending 
-        });
-        const glowMesh = new THREE.Mesh(glowGeo, glowMat);
-        mesh.add(glowMesh);
-      }
-      
-      // Add text label for root, asset, and lab nodes
-      if (nd.type !== 'device') {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d')!;
-        const label = nd.type === 'root' ? `${nd.name} (${nd.onlineCount}/${nd.totalCount})` : nd.name;
-        const fontSize = nd.type === 'root' ? 48 : nd.type === 'asset' ? 40 : 32;
-        canvas.width = 512;
-        canvas.height = 128;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = `bold ${fontSize}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        // White text with subtle shadow
-        ctx.shadowColor = 'rgba(0,0,0,0.8)';
-        ctx.shadowBlur = 6;
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(label, canvas.width / 2, canvas.height / 2);
-        
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.needsUpdate = true;
-        const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
-        const sprite = new THREE.Sprite(spriteMat);
-        const spriteScale = nd.type === 'root' ? 30 : nd.type === 'asset' ? 22 : 18;
-        sprite.scale.set(spriteScale, spriteScale * 0.25, 1);
-        sprite.position.y = nd.size + 3; // Float above the sphere
-        mesh.add(sprite);
-      }
-    });
-    
-    // 7. Create Lines
-    const linesMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.4 });
-    const lineGeo = new THREE.BufferGeometry();
-    const positions: number[] = [];
-    const colors: number[] = [];
-    
-    const colorObj = new THREE.Color();
-    linksData.forEach(ld => {
-      positions.push(ld.source.x, ld.source.y, ld.source.z);
-      positions.push(ld.target.x, ld.target.y, ld.target.z);
-      
-      colorObj.setHex(ld.color);
-      colors.push(colorObj.r, colorObj.g, colorObj.b);
-      colors.push(colorObj.r, colorObj.g, colorObj.b);
-    });
-    lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    lineGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-    
-    const lines = new THREE.LineSegments(lineGeo, linesMat);
-    scene.add(lines);
-    
-    // 8. Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    // 3. Lighting (Sunlight style)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
     
-    const mainLight = new THREE.PointLight(0xc084fc, 800, 800); // adjust intensity and decay
-    mainLight.position.set(0, 50, 0);
-    scene.add(mainLight);
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    sunLight.position.set(150, 300, 100);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.left = -300;
+    sunLight.shadow.camera.right = 300;
+    sunLight.shadow.camera.top = 300;
+    sunLight.shadow.camera.bottom = -300;
+    scene.add(sunLight);
+
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.5);
+    scene.add(hemiLight);
+
+    // 4. Ground (Green/Gray Plaza)
+    const groundGeo = new THREE.CircleGeometry(300, 64);
+    const groundMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.9 });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
     
-    // 9. Base Grid
-    const grid = new THREE.GridHelper(300, 20, 0x475569, 0x1e293b);
-    grid.position.y = -60;
+    const grid = new THREE.GridHelper(600, 60, 0xcbd5e1, 0xe2e8f0);
+    grid.position.y = 0.5;
     grid.material.transparent = true;
-    grid.material.opacity = 0.2;
+    grid.material.opacity = 0.3;
     scene.add(grid);
+
+    // 5. Buildings & Floors
+    const buildingMeshes: THREE.Mesh[] = [];
+    const radius = 220; // 扩大建筑环绕半径
     
-    // 10. Interaction (Raycaster)
+    assets.forEach((asset, idx) => {
+      const angle = (idx / assets.length) * Math.PI * 2;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+      
+      const buildingGroup = new THREE.Group();
+      buildingGroup.position.set(x, 0, z);
+      scene.add(buildingGroup);
+      
+      // Building Name Label on Roof
+      const bLabel = createTextSprite(asset.name, '#334155', 48);
+      bLabel.scale.set(80, 20, 1);
+      
+      // Floor details (增大面积与层高)
+      const floorHeight = 25;
+      const floorSize = 80;
+      const wallThickness = 2;
+      
+      asset.labs.forEach((lab: any, fIdx: number) => {
+        const labDevices = devices.filter(d => d.labId === lab.id);
+        const hasOnline = labDevices.some(d => d.status === 'online');
+        
+        // "Training Building" Style: Glass Box with Metal Frame
+        const floorY = fIdx * floorHeight + floorHeight / 2;
+        
+        // Inner Glass (增强透明度以透视内部)
+        const glassGeo = new THREE.BoxGeometry(floorSize - 2, floorHeight - 1, floorSize - 2);
+        const glassMat = new THREE.MeshPhysicalMaterial({ 
+          color: hasOnline ? 0x0ea5e9 : 0x94a3b8,
+          emissive: hasOnline ? 0x0284c7 : 0x000000,
+          emissiveIntensity: hasOnline ? 0.3 : 0, // 降低玻璃自身发光，突出内部设备
+          transparent: true,
+          opacity: 0.25, // 高度透明
+          roughness: 0.1,
+          metalness: 0.1,
+          transmission: 0.9,
+          ior: 1.5
+        });
+        const glassMesh = new THREE.Mesh(glassGeo, glassMat);
+        glassMesh.position.y = floorY;
+        glassMesh.castShadow = true;
+        glassMesh.receiveShadow = true;
+        
+        // Device Nodes Inside the Lab
+        if (labDevices.length > 0) {
+          const deviceGroup = new THREE.Group();
+          deviceGroup.position.y = floorY - floorHeight / 2 + 1; // 放置在楼层地板之上
+          
+          const maxCols = Math.ceil(Math.sqrt(labDevices.length));
+          const padding = 6;
+          const startX = -((maxCols - 1) * padding) / 2;
+          const startZ = -((maxCols - 1) * padding) / 2;
+          
+          const deviceGeo = new THREE.BoxGeometry(2.5, 3, 2.5);
+          
+          labDevices.forEach((device, dIdx) => {
+            const row = Math.floor(dIdx / maxCols);
+            const col = dIdx % maxCols;
+            
+            let dColor = 0x94a3b8; // offline
+            let dEmissive = 0x000000;
+            if (device.status === 'online') { dColor = 0x10b981; dEmissive = 0x10b981; }
+            if (device.status === 'abnormal') { dColor = 0xef4444; dEmissive = 0xef4444; }
+            
+            const deviceMat = new THREE.MeshStandardMaterial({
+              color: dColor,
+              emissive: dEmissive,
+              emissiveIntensity: device.status !== 'offline' ? 2.0 : 0
+            });
+            const deviceMesh = new THREE.Mesh(deviceGeo, deviceMat);
+            deviceMesh.position.set(startX + col * padding, 1.5, startZ + row * padding);
+            deviceGroup.add(deviceMesh);
+          });
+          buildingGroup.add(deviceGroup);
+        }
+        
+        // Metal/Concrete Frame
+        const frameGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(floorSize, floorHeight, floorSize));
+        const frameMat = new THREE.LineBasicMaterial({ color: 0x475569, linewidth: 2 });
+        const frame = new THREE.LineSegments(frameGeo, frameMat);
+        frame.position.y = floorY;
+        
+        // Add floor plates
+        const plateGeo = new THREE.BoxGeometry(floorSize + 1, 1, floorSize + 1);
+        const plateMat = new THREE.MeshStandardMaterial({ color: 0x64748b });
+        const plateTop = new THREE.Mesh(plateGeo, plateMat);
+        plateTop.position.y = floorY + floorHeight / 2;
+        const plateBottom = new THREE.Mesh(plateGeo, plateMat);
+        plateBottom.position.y = floorY - floorHeight / 2;
+
+        glassMesh.userData = { 
+          type: 'lab', 
+          name: lab.name, 
+          assetName: asset.name, 
+          status: hasOnline ? '使用中' : '空闲',
+          deviceCount: labDevices.length,
+          onlineCount: labDevices.filter(d => d.status === 'online').length
+        };
+        
+        buildingGroup.add(glassMesh);
+        buildingGroup.add(frame);
+        buildingGroup.add(plateTop);
+        buildingGroup.add(plateBottom);
+        buildingMeshes.push(glassMesh); // Only raycast to glass for interaction
+
+        // Lab Name Label with Extension Line
+        const labelXOffset = (x > 0 ? 1 : -1) * (floorSize / 2 + 30);
+        const labelZOffset = (z > 0 ? 1 : -1) * (floorSize / 2 + 30);
+        
+        const linePos = [
+          0, floorY, 0,
+          labelXOffset * 0.8, floorY, labelZOffset * 0.8
+        ];
+        const lineGeo = new THREE.BufferGeometry();
+        lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePos, 3));
+        const lineMat = new THREE.LineBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.5 });
+        const line = new THREE.Line(lineGeo, lineMat);
+        buildingGroup.add(line);
+        
+        const labLabel = createTextSprite(lab.short || lab.name, '#475569', 32);
+        labLabel.position.set(labelXOffset * 0.8, floorY, labelZOffset * 0.8);
+        labLabel.scale.set(60, 15, 1);
+        buildingGroup.add(labLabel);
+      });
+      
+      // Building Roof Label Position
+      bLabel.position.y = asset.labs.length * floorHeight + 30;
+      buildingGroup.add(bLabel);
+    });
+
+    // 6. Interaction
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
-    let hoveredMesh: THREE.Mesh | null = null;
     
     const onMouseMove = (event: MouseEvent) => {
       const rect = renderer.domElement.getBoundingClientRect();
@@ -365,55 +382,29 @@ function NetworkGraph({ devices, assets }: { devices: any[], assets: any[] }) {
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
       
       raycaster.setFromCamera(mouse, camera);
-      // We only want to intersect the nodes, not lines or grid
-      const intersects = raycaster.intersectObjects(meshes);
+      const intersects = raycaster.intersectObjects(buildingMeshes);
       
       if (intersects.length > 0) {
-        const body = intersects[0].object as THREE.Mesh;
-        if (hoveredMesh !== body) {
-          if (hoveredMesh) {
-            (hoveredMesh.material as THREE.MeshStandardMaterial).emissiveIntensity = hoveredMesh.userData.type === 'device' ? 0.6 : 0.3;
-            hoveredMesh.scale.setScalar(hoveredMesh.userData.size);
-          }
-          hoveredMesh = body;
-          (hoveredMesh.material as THREE.MeshStandardMaterial).emissiveIntensity = 2.0; // Highlight strongly
-          hoveredMesh.scale.setScalar(hoveredMesh.userData.size * 1.3); // Pop out
-          
-          setHoveredNode(hoveredMesh.userData);
-          container.style.cursor = 'pointer';
-        }
+        setHoveredInfo(intersects[0].object.userData);
+        container.style.cursor = 'pointer';
       } else {
-        if (hoveredMesh) {
-          (hoveredMesh.material as THREE.MeshStandardMaterial).emissiveIntensity = hoveredMesh.userData.type === 'device' ? 0.6 : 0.3;
-          hoveredMesh.scale.setScalar(hoveredMesh.userData.size);
-          hoveredMesh = null;
-          setHoveredNode(null);
-          container.style.cursor = '';
-        }
+        setHoveredInfo(null);
+        container.style.cursor = '';
       }
     };
+    
     container.addEventListener('mousemove', onMouseMove);
     
-    // 11. Animation Loop
+    // 7. Animation
     let animationFrameId: number;
-    const clock = new THREE.Clock();
-    
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
-      
-      const time = clock.getElapsedTime();
       controls.update();
-      
-      // Floating animation for all nodes
-      meshes.forEach((m) => {
-        m.position.y = m.userData.baseY + Math.sin(time * m.userData.floatSpeed + m.userData.floatOffset) * 2;
-      });
-      
       renderer.render(scene, camera);
     };
     animate();
     
-    // 12. Resize handler
+    // Resize
     const handleResize = () => {
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
@@ -421,96 +412,60 @@ function NetworkGraph({ devices, assets }: { devices: any[], assets: any[] }) {
     };
     window.addEventListener('resize', handleResize);
     
-    // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
       container.removeEventListener('mousemove', onMouseMove);
       cancelAnimationFrame(animationFrameId);
-      controls.dispose();
       renderer.dispose();
-      sphereGeo.dispose();
-      lineGeo.dispose();
-      linesMat.dispose();
-      if (container.firstChild) {
-        container.removeChild(container.firstChild);
-      }
+      scene.traverse((obj: any) => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          if (Array.isArray(obj.material)) obj.material.forEach((m: any) => m.dispose());
+          else obj.material.dispose();
+        }
+      });
     };
   }, [devices, assets]);
 
   return (
-    <div className="w-full h-full relative bg-slate-900 rounded-xl overflow-hidden shadow-inner flex flex-col group">
-      {/* 3D Canvas Container */}
+    <div className="w-full h-full relative bg-slate-100 rounded-xl overflow-hidden shadow-inner group border border-slate-200">
       <div ref={containerRef} className="w-full h-full absolute inset-0" />
       
       {/* HUD Info */}
       <div className="absolute top-4 left-4 pointer-events-none z-10">
-        <h3 className="text-slate-100 font-bold tracking-wide flex items-center gap-2 drop-shadow-md">
-          <Network className="w-5 h-5 text-purple-500" /> 终端设备 3D 拓扑视图
+        <h3 className="text-slate-800 font-bold tracking-wide flex items-center gap-2 drop-shadow-sm">
+          <Building2 className="w-5 h-5 text-indigo-600" /> 校园实训资产数字孪生
         </h3>
-        <p className="text-slate-400 text-[11px] mt-1 font-medium bg-slate-900/50 px-2 py-0.5 rounded backdrop-blur-sm w-fit border border-white/5">
-           🖱️ 支持鼠标拖拽旋转、滚轮缩放。悬停节点查看链路详情。
+        <p className="text-slate-500 text-[10px] mt-1 font-medium bg-white/60 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-200 shadow-sm">
+          🌤️ 白天模式。楼层高亮表示实训中。支持全视角旋转与缩放交互。
         </p>
       </div>
-      
-      {/* Legend overlay */}
-      <div className="absolute bottom-4 right-4 bg-slate-900/60 backdrop-blur-md p-3 rounded-xl border border-white/10 text-[10px] text-slate-300 shadow-lg space-y-2 z-10 pointer-events-none">
-        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></div><span className="font-medium">管理节点</span></div>
-        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div><span className="font-medium">在线终端</span></div>
-        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-slate-400 shadow-[0_0_8px_#94a3b8]"></div><span className="font-medium">离线终端</span></div>
-        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></div><span className="font-medium">异常告警</span></div>
-      </div>
-      
-      {/* Dynamic Tooltip */}
+
+      {/* Tooltip */}
       <AnimatePresence>
-        {hoveredNode && (
+        {hoveredInfo && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 10 }}
-            className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-xl border border-purple-500/30 p-4 rounded-2xl shadow-[0_10px_40px_-5px_rgba(0,0,0,0.5)] pointer-events-none text-white min-w-[240px] z-50"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="absolute top-4 right-4 bg-white/90 backdrop-blur-xl border border-slate-200 p-4 rounded-xl shadow-2xl pointer-events-none text-slate-800 min-w-[220px] z-50"
           >
-            <div className="text-[10px] text-purple-300 font-bold mb-1 uppercase tracking-wider flex items-center gap-1.5 opacity-90">
-              { hoveredNode.type === 'root' ? <Building2 className="w-3.5 h-3.5"/> :
-                hoveredNode.type === 'asset' ? <Building2 className="w-3.5 h-3.5"/> :
-                hoveredNode.type === 'lab' ? <MonitorPlay className="w-3.5 h-3.5"/> : <Cpu className="w-3.5 h-3.5"/> }
-              { hoveredNode.type === 'root' ? '🏫 学校主节点' :
-                hoveredNode.type === 'asset' ? '🏢 资产大楼' :
-                hoveredNode.type === 'lab' ? '🔬 实训室节点' : '🖥️ 智能终端设备'
-              }
+            <div className="text-[10px] text-indigo-600 font-bold mb-1 uppercase tracking-wider">{hoveredInfo.assetName}</div>
+            <div className="text-lg font-bold mb-2 border-b border-slate-100 pb-2">{hoveredInfo.name}</div>
+            <div className="space-y-1.5 text-xs text-slate-600">
+              <div className="flex justify-between"><span>实训状态:</span><span className={cn("font-bold", hoveredInfo.status === '使用中' ? "text-emerald-600" : "text-slate-400")}>{hoveredInfo.status}</span></div>
+              <div className="flex justify-between"><span>终端总数:</span><span className="font-mono font-bold">{hoveredInfo.deviceCount}</span></div>
+              <div className="flex justify-between"><span>在线运行:</span><span className="font-mono text-emerald-500 font-bold">{hoveredInfo.onlineCount}</span></div>
             </div>
-            
-            <div className="text-lg font-bold mb-3 border-b border-white/10 pb-2">{hoveredNode.name}</div>
-            
-            {hoveredNode.type === 'root' && (
-              <div className="space-y-1.5 text-sm">
-                <div className="flex justify-between text-slate-300 gap-6"><span>总设备数:</span><span className="font-bold text-white font-mono">{hoveredNode.totalCount}</span></div>
-                <div className="flex justify-between text-slate-300 gap-6"><span>在线设备:</span><span className="font-bold text-emerald-400 font-mono">{hoveredNode.onlineCount}</span></div>
-              </div>
-            )}
-            
-            {hoveredNode.type === 'device' && (
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs text-slate-300 gap-6">
-                  <span>归属实训室:</span><span className="font-medium text-white">{hoveredNode.labName}</span>
-                </div>
-                <div className="flex justify-between text-xs text-slate-300 gap-6">
-                  <span>网络分配 IP:</span><span className="font-mono text-cyan-300">{hoveredNode.ip}</span>
-                </div>
-                <div className="pt-2 mt-2 border-t border-white/10 flex items-center justify-between">
-                  <span className="text-xs text-slate-400">实时连接状态:</span>
-                  <span className={cn(
-                    "text-xs font-bold px-2.5 py-0.5 rounded-full",
-                    hoveredNode.status === 'online' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : 
-                    hoveredNode.status === 'abnormal' ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-slate-500/20 text-slate-400 border border-slate-500/30"
-                  )}>
-                    {hoveredNode.status === 'online' ? '🟢 运行正常' : hoveredNode.status === 'abnormal' ? '🔴 异常告警' : '⚫ 已离线'}
-                  </span>
-                </div>
-              </div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Legend */}
+      <div className="absolute bottom-4 right-4 bg-white/70 backdrop-blur-md p-3 rounded-xl border border-slate-200 text-[10px] text-slate-600 shadow-lg space-y-2 z-10 pointer-events-none">
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-sky-500 shadow-[0_0_8px_#0ea5e9]"></div><span className="font-bold">实训开启中</span></div>
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-slate-300"></div><span className="font-bold">资源闲置中</span></div>
+      </div>
     </div>
   );
 }
@@ -972,7 +927,7 @@ export default function OperationDashboard() {
             </div>
             {/* 右侧：网状视图 */}
             <div className="flex-1 min-w-0 flex flex-col">
-              <NetworkGraph devices={allDevices} assets={assets} />
+              <CampusScene3D devices={allDevices} assets={assets} />
             </div>
           </div>
         </div>
