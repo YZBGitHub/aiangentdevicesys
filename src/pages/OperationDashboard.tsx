@@ -183,7 +183,7 @@ function NetworkGraph({ devices, assets }: { devices: any[], assets: any[] }) {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.autoRotate = true;
+    controls.autoRotate = false;
     controls.autoRotateSpeed = 0.15;
     controls.maxDistance = 500;
     controls.minDistance = 30;
@@ -197,26 +197,25 @@ function NetworkGraph({ devices, assets }: { devices: any[], assets: any[] }) {
     const rootOnline = devices.filter(d => d.status === 'online').length;
     nodesData.push({ id: 'root', type: 'root', pos: rootPos, name: '新大陆科技大学', color: 0xc084fc, size: 16, onlineCount: rootOnline, totalCount: devices.length });
     
-    const R_ASSET = 70;
-    const R_LAB = 30;
-    const R_DEVICE = 12;
+    const R_ASSET = 80;
+    const R_LAB = 40;
+    const R_DEVICE = 18;
     
     assets.forEach((asset, i) => {
       const assetAngle = (i / assets.length) * Math.PI * 2;
-      const assetY = Math.sin(assetAngle * 3) * 10; // Wavy orbit
       const assetPos = new THREE.Vector3(
         rootPos.x + Math.cos(assetAngle) * R_ASSET,
-        rootPos.y + assetY,
+        rootPos.y, // 扁平环状，取消高低起伏
         rootPos.z + Math.sin(assetAngle) * R_ASSET
       );
       nodesData.push({ id: asset.id, type: 'asset', pos: assetPos, name: asset.name, color: 0x9333ea, size: 10 });
       linksData.push({ source: rootPos, target: assetPos, color: 0x9333ea });
       
       asset.labs.forEach((lab: any, j: number) => {
-        const labAngle = (j / asset.labs.length) * Math.PI * 2;
+        const labAngle = (j / asset.labs.length) * Math.PI * 2 + assetAngle;
         const labPos = new THREE.Vector3(
           assetPos.x + Math.cos(labAngle) * R_LAB,
-          assetPos.y + (Math.random() - 0.5) * 5,
+          assetPos.y, // 扁平环状
           assetPos.z + Math.sin(labAngle) * R_LAB
         );
         nodesData.push({ id: lab.id, type: 'lab', pos: labPos, name: lab.name, color: 0x8b5cf6, size: 7 });
@@ -226,14 +225,13 @@ function NetworkGraph({ devices, assets }: { devices: any[], assets: any[] }) {
         if (labDevices.length > 25) labDevices = labDevices.slice(0, 25); // Cap visual density
         
         labDevices.forEach((device, k) => {
-          // Fibonacci sphere distribution for devices around lab
-          const phi = Math.acos(1 - 2 * (k + 0.5) / labDevices.length);
-          const theta = Math.PI * (1 + Math.sqrt(5)) * k;
+          // 圆环分布
+          const devAngle = (k / labDevices.length) * Math.PI * 2 + labAngle;
           
           const devPos = new THREE.Vector3(
-            labPos.x + R_DEVICE * Math.cos(theta) * Math.sin(phi),
-            labPos.y + R_DEVICE * Math.sin(theta) * Math.sin(phi),
-            labPos.z + R_DEVICE * Math.cos(phi)
+            labPos.x + Math.cos(devAngle) * R_DEVICE,
+            labPos.y,
+            labPos.z + Math.sin(devAngle) * R_DEVICE
           );
           
           let color = 0x94a3b8; // offline
@@ -446,8 +444,8 @@ function NetworkGraph({ devices, assets }: { devices: any[], assets: any[] }) {
       
       {/* HUD Info */}
       <div className="absolute top-4 left-4 pointer-events-none z-10">
-        <h3 className="text-white font-bold tracking-widest flex items-center gap-2 drop-shadow-md">
-          <Network className="w-5 h-5 text-purple-400" /> WebGL 终端星系态势感知
+        <h3 className="text-slate-100 font-bold tracking-wide flex items-center gap-2 drop-shadow-md">
+          <Network className="w-5 h-5 text-purple-500" /> 终端设备 3D 拓扑视图
         </h3>
         <p className="text-slate-400 text-[11px] mt-1 font-medium bg-slate-900/50 px-2 py-0.5 rounded backdrop-blur-sm w-fit border border-white/5">
            🖱️ 支持鼠标拖拽旋转、滚轮缩放。悬停节点查看链路详情。
@@ -881,7 +879,7 @@ export default function OperationDashboard() {
                   <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-stone-100/90 via-stone-50/50 to-transparent pointer-events-none rounded-b-xl z-[1]"></div>
 
                   {/* 楼房天际线 */}
-                  <div className="relative z-10 flex gap-8 items-end justify-center px-8 pb-14 pt-6 min-h-full">
+                  <div className="relative z-10 flex gap-8 items-stretch justify-center px-8 pb-14 pt-6 min-h-full">
                     {assets.map((asset, assetIdx) => {
                       const assetDevices = allDevices.filter(d => d.assetId === asset.id);
                       const onlineCount = assetDevices.filter(d => d.status === 'online').length;
@@ -896,22 +894,22 @@ export default function OperationDashboard() {
                       const s = styles[assetIdx % styles.length];
 
                       return (
-                        <motion.div key={asset.id} className="flex flex-col items-center"
+                        <motion.div key={asset.id} className="flex flex-col items-center h-full"
                           initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.6, delay: assetIdx * 0.12, ease: 'easeOut' }}>
-                          <div className="relative group/building w-[220px]">
+                          <div className="relative group/building w-[220px] flex flex-col h-full">
                             {/* 天线 */}
-                            <div className="flex justify-center mb-[-1px]"><div className="w-px h-4 bg-slate-300"></div></div>
-                            <div className="flex justify-center mb-[-1px]"><div className="w-6 h-1 bg-slate-300 rounded-t"></div></div>
+                            <div className="flex justify-center mb-[-1px] shrink-0"><div className="w-px h-4 bg-slate-300"></div></div>
+                            <div className="flex justify-center mb-[-1px] shrink-0"><div className="w-6 h-1 bg-slate-300 rounded-t"></div></div>
                             {/* 屋顶 */}
-                            <div className={cn("bg-gradient-to-r text-white px-4 py-3 rounded-t-xl text-center relative overflow-hidden shadow-lg", s.gradient)}>
+                            <div className={cn("bg-gradient-to-r text-white px-4 py-3 rounded-t-xl text-center relative overflow-hidden shadow-lg shrink-0", s.gradient)}>
                               <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 10px, white 10px, white 11px)` }}></div>
                               <Building2 className="w-5 h-5 mx-auto mb-1 opacity-80 relative z-10" />
                               <div className="text-sm font-black tracking-wide relative z-10">{asset.name}</div>
                               <div className="text-[10px] opacity-80 font-medium mt-0.5 relative z-10">{onlineCount}/{totalCount} 在线 · {onlineRate}%</div>
                             </div>
                             {/* 楼体（实训室楼层） */}
-                            <div className="bg-white shadow-md" style={{ borderLeft: `2px solid ${s.bc}30`, borderRight: `2px solid ${s.bc}30` }}>
+                            <div className="bg-white shadow-md flex-1" style={{ borderLeft: `2px solid ${s.bc}30`, borderRight: `2px solid ${s.bc}30` }}>
                               {asset.labs.map((lab, labIdx) => {
                                 const labDevices = allDevices.filter(d => d.labId === lab.id);
                                 const labOnline = labDevices.filter(d => d.status === 'online').length;
@@ -953,8 +951,8 @@ export default function OperationDashboard() {
                               })}
                             </div>
                             {/* 地基 */}
-                            <div className="h-2.5 bg-gradient-to-b from-slate-300 to-slate-400 rounded-b-lg shadow-md"></div>
-                            <div className="mx-4 h-2 bg-slate-900/5 rounded-[100%] blur-sm -mt-1"></div>
+                            <div className="h-2.5 bg-gradient-to-b from-slate-300 to-slate-400 rounded-b-lg shadow-md shrink-0"></div>
+                            <div className="mx-4 h-2 bg-slate-900/5 rounded-[100%] blur-sm -mt-1 shrink-0"></div>
                           </div>
                         </motion.div>
                       );
