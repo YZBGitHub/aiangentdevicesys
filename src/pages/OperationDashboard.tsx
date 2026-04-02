@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as d3 from 'd3';
 import * as THREE from 'three';
@@ -28,42 +28,123 @@ const trendData = {
 const heatmapData = [
   { id: 1, name: '物联网综合实训室', asset: 'A栋-101', agents: 45, online: true, duration: '12h 30m' },
   { id: 2, name: 'AI基础实验室', asset: 'A栋-102', agents: 32, online: true, duration: '8h 15m' },
-  { id: 3, name: '工业互联网中心', asset: 'B栋-201', agents: 60, online: true, duration: '24h 00m' },
-  { id: 4, name: '大数据分析实训室', asset: 'B栋-202', agents: 40, online: false, duration: '0h 00m' },
-  { id: 5, name: '云计算网络实验室', asset: 'C栋-301', agents: 55, online: true, duration: '5h 45m' },
-  { id: 6, name: '网络安全实训室', asset: 'C栋-302', agents: 30, online: true, duration: '18h 20m' },
-  { id: 7, name: '智慧农业大棚', asset: 'D栋-101', agents: 25, online: false, duration: '0h 00m' },
-  { id: 8, name: '智能制造车间', asset: 'D栋-102', agents: 80, online: true, duration: '48h 10m' },
+  { id: 3, name: '嵌入式系统实训室', asset: 'A栋-103', agents: 38, online: true, duration: '6h 20m' },
+  { id: 4, name: '移动通信实训室', asset: 'A栋-104', agents: 28, online: false, duration: '0h 00m' },
+  { id: 5, name: '工业互联网中心', asset: 'B栋-201', agents: 60, online: true, duration: '24h 00m' },
+  { id: 6, name: '大数据分析实训室', asset: 'B栋-202', agents: 40, online: true, duration: '10h 00m' },
+  { id: 7, name: '数字孪生仿真实验室', asset: 'B栋-203', agents: 44, online: true, duration: '14h 10m' },
+  { id: 8, name: '边缘智能网关室', asset: 'B栋-204', agents: 36, online: false, duration: '0h 00m' },
+  { id: 9, name: '云计算网络实验室', asset: 'C栋-301', agents: 55, online: true, duration: '5h 45m' },
+  { id: 10, name: '网络安全实训室', asset: 'C栋-302', agents: 30, online: true, duration: '18h 20m' },
+  { id: 11, name: '区块链技术实验室', asset: 'C栋-303', agents: 26, online: false, duration: '0h 00m' },
+  { id: 12, name: '工业物联网协议实验室', asset: 'C栋-304', agents: 42, online: true, duration: '9h 30m' },
+  { id: 13, name: '智慧农业大棚', asset: 'D栋-401', agents: 25, online: true, duration: '4h 00m' },
+  { id: 14, name: '智能制造车间', asset: 'D栋-402', agents: 80, online: true, duration: '48h 10m' },
+  { id: 15, name: 'AR/VR 交互实训室', asset: 'D栋-403', agents: 22, online: false, duration: '0h 00m' },
+  { id: 16, name: '协作机器人实训室', asset: 'D栋-404', agents: 48, online: true, duration: '16h 45m' },
 ];
 
 const labImages: Record<string, string> = {
   '物联网综合实训室': 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80',
   'AI基础实验室': 'https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&w=800&q=80',
+  '嵌入式系统实训室': 'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=800&q=80',
+  '移动通信实训室': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80',
   '工业互联网中心': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
   '大数据分析实训室': 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80',
+  '数字孪生仿真实验室': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=800&q=80',
+  '边缘智能网关室': 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80',
   '云计算网络实验室': 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80',
   '网络安全实训室': 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80',
+  '区块链技术实验室': 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=800&q=80',
+  '工业物联网协议实验室': 'https://images.unsplash.com/photo-1558346490-a72e3ae2fd6a?auto=format&fit=crop&w=800&q=80',
   '智慧农业大棚': 'https://images.unsplash.com/photo-1530836369250-ef71a3a5e4bf?auto=format&fit=crop&w=800&q=80',
   '智能制造车间': 'https://images.unsplash.com/photo-1565439390118-c22456d151f4?auto=format&fit=crop&w=800&q=80',
+  'AR/VR 交互实训室': 'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?auto=format&fit=crop&w=800&q=80',
+  '协作机器人实训室': 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80',
 };
 
 // --- New Asset Tree and Devices Data ---
 const assets = [
-  { id: 'A', name: 'A栋教学楼', labs: [{ id: 'L1', name: '物联网综合实训室', short: '物联网' }, { id: 'L2', name: 'AI基础实验室', short: 'AI基础' }] },
-  { id: 'B', name: 'B栋实训楼', labs: [{ id: 'L3', name: '工业互联网中心', short: '工业网' }, { id: 'L4', name: '大数据分析实训室', short: '大数据' }] },
-  { id: 'C', name: 'C栋实验楼', labs: [{ id: 'L5', name: '云计算网络实验室', short: '云计算' }, { id: 'L6', name: '网络安全实训室', short: '网络安全' }] },
-  { id: 'D', name: 'D栋创新楼', labs: [{ id: 'L7', name: '智慧农业大棚', short: '智慧农业' }, { id: 'L8', name: '智能制造车间', short: '智能制造' }] },
+  {
+    id: 'A',
+    name: 'A栋教学楼',
+    shortAddr: '主校区东侧',
+    labs: [
+      { id: 'L1', name: '物联网综合实训室', short: '物联网', room: 'A-101' },
+      { id: 'L2', name: 'AI基础实验室', short: 'AI基础', room: 'A-102' },
+      { id: 'L3', name: '嵌入式系统实训室', short: '嵌入式', room: 'A-103' },
+      { id: 'L4', name: '移动通信实训室', short: '移动通信', room: 'A-104' },
+    ],
+  },
+  {
+    id: 'B',
+    name: 'B栋实训楼',
+    shortAddr: '主校区南侧',
+    labs: [
+      { id: 'L5', name: '工业互联网中心', short: '工业互联', room: 'B-201' },
+      { id: 'L6', name: '大数据分析实训室', short: '大数据', room: 'B-202' },
+      { id: 'L7', name: '数字孪生仿真实验室', short: '数字孪生', room: 'B-203' },
+      { id: 'L8', name: '边缘智能网关室', short: '边缘网关', room: 'B-204' },
+    ],
+  },
+  {
+    id: 'C',
+    name: 'C栋实验楼',
+    shortAddr: '主校区西侧',
+    labs: [
+      { id: 'L9', name: '云计算网络实验室', short: '云计算', room: 'C-301' },
+      { id: 'L10', name: '网络安全实训室', short: '网络安全', room: 'C-302' },
+      { id: 'L11', name: '区块链技术实验室', short: '区块链', room: 'C-303' },
+      { id: 'L12', name: '工业物联网协议实验室', short: 'IoT协议', room: 'C-304' },
+    ],
+  },
+  {
+    id: 'D',
+    name: 'D栋创新楼',
+    shortAddr: '主校区北侧',
+    labs: [
+      { id: 'L13', name: '智慧农业大棚', short: '智慧农业', room: 'D-401' },
+      { id: 'L14', name: '智能制造车间', short: '智能制造', room: 'D-402' },
+      { id: 'L15', name: 'AR/VR 交互实训室', short: 'AR/VR', room: 'D-403' },
+      { id: 'L16', name: '协作机器人实训室', short: '协作机器人', room: 'D-404' },
+    ],
+  },
 ];
 
-const agentNames = ['物联网中心网关', '有人DTU', '研华网关', 'Lora终端', '人工智能前端设备', '植物工厂', '大象机械臂'];
+/** 实训室当前无一台设备在线 = 未排课/未开启，设备全部离线或异常 */
+const LABS_ZERO_ONLINE = new Set<string>(['L4', 'L8', 'L11', 'L15']);
+
+const agentNames = [
+  '物联网中心网关',
+  '有人DTU',
+  '研华网关',
+  'Lora终端',
+  '人工智能前端设备',
+  '植物工厂',
+  '大象机械臂',
+  'PLC 控制单元',
+  '机器视觉相机',
+  '边缘 AI 盒子',
+  '温湿度传感器阵列',
+  'AGV 调度终端',
+];
+
 const allDevices: any[] = [];
 assets.forEach(asset => {
   asset.labs.forEach(lab => {
-    const count = Math.floor(Math.random() * 20) + 15; // 15-35 devices per lab
+    const count = Math.floor(Math.random() * 14) + 18; // 18–31 台/室
+    const forceNoOnline = LABS_ZERO_ONLINE.has(lab.id);
     for (let i = 1; i <= count; i++) {
       const rand = Math.random();
-      const status = rand > 0.15 ? 'online' : (rand > 0.05 ? 'offline' : 'abnormal');
+      let status: 'online' | 'offline' | 'abnormal';
+      if (forceNoOnline) {
+        status = rand > 0.12 ? 'offline' : 'abnormal';
+      } else {
+        status = rand > 0.18 ? 'online' : rand > 0.06 ? 'offline' : 'abnormal';
+      }
       const agentName = agentNames[Math.floor(Math.random() * agentNames.length)];
+      const labNum = parseInt(lab.id.replace(/^L/, ''), 10) || 0;
+      const subnet = 10 + (labNum % 18);
       allDevices.push({
         id: `${lab.id}-${i}`,
         name: `${agentName}-${String(i).padStart(2, '0')}`,
@@ -71,11 +152,32 @@ assets.forEach(asset => {
         assetName: asset.name,
         labId: lab.id,
         labName: lab.name,
-        status: status,
-        ip: `192.168.${Math.floor(Math.random() * 20) + 1}.${Math.floor(Math.random() * 255)}`
+        status,
+        ip: `192.168.${subnet}.${Math.floor(Math.random() * 250) + 2}`,
       });
     }
   });
+});
+
+const deviceStatusPieData = [
+  { name: '在线', value: allDevices.filter(d => d.status === 'online').length },
+  { name: '离线', value: allDevices.filter(d => d.status === 'offline').length },
+  { name: '异常', value: allDevices.filter(d => d.status === 'abnormal').length },
+];
+
+function countLabsWithAnyOnline(assetId: string) {
+  const a = assets.find(x => x.id === assetId);
+  if (!a) return { active: 0, total: 0 };
+  const active = a.labs.filter(lab =>
+    allDevices.some(d => d.labId === lab.id && d.status === 'online')
+  ).length;
+  return { active, total: a.labs.length };
+}
+
+const labUsageBarData = (['A', 'B', 'C', 'D'] as const).map(id => {
+  const { active, total } = countLabsWithAnyOnline(id);
+  const nameMap = { A: 'A栋', B: 'B栋', C: 'C栋', D: 'D栋' };
+  return { name: nameMap[id], 使用中: active, 未使用: total - active };
 });
 
 const agentRankData = [
@@ -89,10 +191,10 @@ const agentRankData = [
 ];
 
 const labRankData = [
-  { name: '智能制造车间', asset: 'D栋-102', duration: 1250 },
+  { name: '智能制造车间', asset: 'D栋-402', duration: 1250 },
   { name: '工业互联网中心', asset: 'B栋-201', duration: 980 },
   { name: '物联网综合实训室', asset: 'A栋-101', duration: 850 },
-  { name: 'AI基础实验室', asset: 'A栋-102', duration: 620 },
+  { name: '协作机器人实训室', asset: 'D栋-404', duration: 720 },
   { name: '网络安全实训室', asset: 'C栋-302', duration: 450 },
 ];
 
@@ -128,21 +230,8 @@ const spatialHeatmapData = [
 
 const aiSuggestions = [
   { type: 'warning', title: '热度爆满预警', desc: '智能制造车间本周使用率达 98%，建议加大设备投入或优化排课机制。' },
-  { type: 'suggestion', title: '闲置资源提醒', desc: '智慧农业大棚已连续 2 天未被使用，请核实设备状态或安排实训任务。' },
+  { type: 'suggestion', title: '闲置资源提醒', desc: '移动通信、区块链等实训室当前无设备在线，请核实排课或上电情况。' },
   { type: 'suggestion', title: '维护建议', desc: '物联网中心网关连续高负载运行超 300 小时，建议安排例行检查。' },
-];
-
-const labUsageBarData = [
-  { name: 'A栋', 使用中: 2, 未使用: 0 },
-  { name: 'B栋', 使用中: 1, 未使用: 1 },
-  { name: 'C栋', 使用中: 2, 未使用: 0 },
-  { name: 'D栋', 使用中: 1, 未使用: 1 },
-];
-
-const deviceStatusPieData = [
-  { name: '在线', value: 1062 },
-  { name: '离线', value: 150 },
-  { name: '异常', value: 38 },
 ];
 
 const PIE_COLORS = {
@@ -173,69 +262,187 @@ function createTextSprite(text: string, color: string = '#ffffff', fontSize: num
   return sprite;
 }
 
+// --- Helper: Create a simple procedural tree ---
+function createTree(x: number, z: number, scale: number = 1): THREE.Group {
+  const group = new THREE.Group();
+  group.position.set(x, 0, z);
+
+  // Trunk
+  const trunkGeo = new THREE.CylinderGeometry(0.8 * scale, 1.2 * scale, 8 * scale, 8);
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8B5E3C, roughness: 0.9 });
+  const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+  trunk.position.y = 4 * scale;
+  trunk.castShadow = true;
+  group.add(trunk);
+
+  // Foliage layers (3 cones stacked)
+  const foliageColors = [0x2d6a4f, 0x40916c, 0x52b788];
+  const layerData = [
+    { r: 9 * scale, h: 12 * scale, y: 10 * scale },
+    { r: 7 * scale, h: 10 * scale, y: 16 * scale },
+    { r: 5 * scale, h: 8 * scale,  y: 21 * scale },
+  ];
+  layerData.forEach((l, i) => {
+    const coneGeo = new THREE.ConeGeometry(l.r, l.h, 8);
+    const coneMat = new THREE.MeshStandardMaterial({ color: foliageColors[i], roughness: 0.8 });
+    const cone = new THREE.Mesh(coneGeo, coneMat);
+    cone.position.y = l.y;
+    cone.castShadow = true;
+    group.add(cone);
+  });
+
+  return group;
+}
+
+// --- Helper: Create a grass patch ---
+function createGrassPatch(cx: number, cz: number, radius: number): THREE.Mesh {
+  const geo = new THREE.CircleGeometry(radius, 32);
+  const mat = new THREE.MeshStandardMaterial({ color: 0x6abf69, roughness: 0.95 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.set(cx, 0.15, cz);
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+// --- Helper: Create a road/path strip ---
+function createPath(x1: number, z1: number, x2: number, z2: number, width: number = 8): THREE.Mesh {
+  const dx = x2 - x1, dz = z2 - z1;
+  const len = Math.sqrt(dx * dx + dz * dz);
+  const angle = Math.atan2(dx, dz);
+  const geo = new THREE.PlaneGeometry(width, len);
+  const mat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.95 });
+  const mesh = new THREE.Mesh(geo, mat);
+  // Rotate flat then orient along direction
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.rotation.z = angle;
+  mesh.position.set((x1 + x2) / 2, 0.2, (z1 + z2) / 2);
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
 // --- Campus Scene Component (3D Topology) ---
 function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredInfo, setHoveredInfo] = useState<any>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
     
     // 1. Scene & Camera Setup (Daytime)
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf1f5f9); // Light slate/blue background
-    scene.fog = new THREE.Fog(0xf1f5f9, 50, 1000);
+    scene.background = new THREE.Color(0xdbeafe); // Sky blue
+    scene.fog = new THREE.FogExp2(0xdbeafe, 0.0012);
     
-    const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 2000);
-    camera.position.set(200, 250, 400);
+    const w0 = Math.max(1, container.clientWidth);
+    const h0 = Math.max(1, container.clientHeight);
+    const camera = new THREE.PerspectiveCamera(50, w0 / h0, 0.1, 2000);
+    camera.position.set(200, 260, 420);
     
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(w0, h0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    // canvas 样式：撑满容器，接收所有鼠标/触摸事件
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.touchAction = 'none';
+    renderer.domElement.style.outline = 'none';
     container.appendChild(renderer.domElement);
-    
-    // 2. Controls
+
+    // 2. Controls — 绑定到 canvas，旋转、平移、缩放全部开启
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
+    controls.dampingFactor = 0.06;
     controls.enableZoom = true;
     controls.enablePan = true;
-    controls.maxDistance = 1500;
-    controls.minDistance = 20;
+    controls.enableRotate = true;
+    controls.maxDistance = 900;
+    controls.minDistance = 30;
+    controls.maxPolarAngle = Math.PI / 2.05;
+    controls.target.set(0, 30, 0);
+    controls.mouseButtons = {
+      LEFT: THREE.MOUSE.ROTATE,
+      MIDDLE: THREE.MOUSE.DOLLY,
+      RIGHT: THREE.MOUSE.PAN,
+    };
+    controls.update();
     
-    // 3. Lighting (Sunlight style)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    // 3. Lighting
+    const ambientLight = new THREE.AmbientLight(0xfff4e0, 0.6);
     scene.add(ambientLight);
     
-    const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    sunLight.position.set(150, 300, 100);
+    const sunLight = new THREE.DirectionalLight(0xfff8e7, 1.4);
+    sunLight.position.set(200, 350, 150);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 2048;
     sunLight.shadow.mapSize.height = 2048;
-    sunLight.shadow.camera.left = -300;
-    sunLight.shadow.camera.right = 300;
-    sunLight.shadow.camera.top = 300;
-    sunLight.shadow.camera.bottom = -300;
+    sunLight.shadow.camera.left = -400;
+    sunLight.shadow.camera.right = 400;
+    sunLight.shadow.camera.top = 400;
+    sunLight.shadow.camera.bottom = -400;
+    sunLight.shadow.bias = -0.001;
     scene.add(sunLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.5);
+    // 天空半球光：天蓝色 + 草绿色地面反射
+    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x4a7c59, 0.7);
     scene.add(hemiLight);
 
-    // 4. Ground (Green/Gray Plaza)
-    const groundGeo = new THREE.CircleGeometry(300, 64);
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.9 });
+    // 4. Ground — 大草坪底色
+    const groundGeo = new THREE.CircleGeometry(500, 64);
+    const groundMat = new THREE.MeshStandardMaterial({ color: 0x7ec850, roughness: 1.0 });
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
-    
-    const grid = new THREE.GridHelper(600, 60, 0xcbd5e1, 0xe2e8f0);
-    grid.position.y = 0.5;
-    grid.material.transparent = true;
-    grid.material.opacity = 0.3;
+
+    // 中央广场（硬化地面）
+    const plazaGeo = new THREE.CircleGeometry(90, 32);
+    const plazaMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.85 });
+    const plaza = new THREE.Mesh(plazaGeo, plazaMat);
+    plaza.rotation.x = -Math.PI / 2;
+    plaza.position.y = 0.1;
+    plaza.receiveShadow = true;
+    scene.add(plaza);
+
+    // 道路（十字形）
+    scene.add(createPath(0, -400, 0, 400, 14));
+    scene.add(createPath(-400, 0, 400, 0, 14));
+
+    // 草坪色块（建筑周围绿化带）
+    const grassPositions = [
+      [0, 0, 120], [0, 0, -120], [120, 0, 0], [-120, 0, 0],
+      [80, 0, 80], [-80, 0, 80], [80, 0, -80], [-80, 0, -80],
+    ];
+    grassPositions.forEach(([cx, , cz]) => {
+      scene.add(createGrassPatch(cx, cz, 35));
+    });
+
+    // 树木 — 沿广场边缘和道路两侧种植
+    const treeRing = [
+      [100, 0], [-100, 0], [0, 100], [0, -100],
+      [70, 70], [-70, 70], [70, -70], [-70, -70],
+      [130, 40], [-130, 40], [130, -40], [-130, -40],
+      [40, 130], [-40, 130], [40, -130], [-40, -130],
+      [160, 0], [-160, 0], [0, 160], [0, -160],
+      [200, 80], [-200, 80], [200, -80], [-200, -80],
+      [80, 200], [-80, 200], [80, -200], [-80, -200],
+    ];
+    treeRing.forEach(([tx, tz]) => {
+      const s = 0.7 + Math.random() * 0.6;
+      scene.add(createTree(tx, tz, s));
+    });
+
+    // 轻量网格（仅广场区域）
+    const grid = new THREE.GridHelper(180, 18, 0xcbd5e1, 0xdde3ea);
+    (grid.material as THREE.Material).transparent = true;
+    (grid.material as THREE.Material).opacity = 0.25;
+    grid.position.y = 0.3;
     scene.add(grid);
 
     // 5. Buildings & Floors
@@ -262,28 +469,46 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
       
       asset.labs.forEach((lab: any, fIdx: number) => {
         const labDevices = devices.filter(d => d.labId === lab.id);
-        const hasOnline = labDevices.some(d => d.status === 'online');
+        const onlineCount = labDevices.filter(d => d.status === 'online').length;
+        const labActive = onlineCount > 0;
         
         // "Training Building" Style: Glass Box with Metal Frame
         const floorY = fIdx * floorHeight + floorHeight / 2;
         
-        // Inner Glass (增强透明度以透视内部)
+        // Inner Glass — 开启中透亮泛光；未开启（0 在线）整体压暗、关灯质感
         const glassGeo = new THREE.BoxGeometry(floorSize - 2, floorHeight - 1, floorSize - 2);
         const glassMat = new THREE.MeshPhysicalMaterial({ 
-          color: hasOnline ? 0x0ea5e9 : 0x94a3b8,
-          emissive: hasOnline ? 0x0284c7 : 0x000000,
-          emissiveIntensity: hasOnline ? 0.3 : 0, // 降低玻璃自身发光，突出内部设备
+          color: labActive ? 0x0ea5e9 : 0x1e293b,
+          emissive: labActive ? 0x38bdf8 : 0x020617,
+          emissiveIntensity: labActive ? 0.32 : 0.03,
           transparent: true,
-          opacity: 0.25, // 高度透明
-          roughness: 0.1,
-          metalness: 0.1,
-          transmission: 0.9,
-          ior: 1.5
+          opacity: labActive ? 0.26 : 0.82,
+          roughness: labActive ? 0.1 : 0.88,
+          metalness: labActive ? 0.1 : 0.42,
+          transmission: labActive ? 0.88 : 0.06,
+          ior: 1.48,
+          clearcoat: labActive ? 0.22 : 0,
+          clearcoatRoughness: 0.35,
         });
         const glassMesh = new THREE.Mesh(glassGeo, glassMat);
         glassMesh.position.y = floorY;
         glassMesh.castShadow = true;
         glassMesh.receiveShadow = true;
+
+        // 室内“顶灯”平面：开启时暖亮，未开启时仅微弱环境反光
+        const ceilingGeo = new THREE.PlaneGeometry(floorSize - 10, floorSize - 10);
+        const ceilingMat = new THREE.MeshStandardMaterial({
+          color: labActive ? 0xfffbeb : 0x0f172a,
+          emissive: labActive ? 0xfde68a : 0x020617,
+          emissiveIntensity: labActive ? 1.1 : 0.06,
+          roughness: labActive ? 0.35 : 0.92,
+          metalness: labActive ? 0 : 0.25,
+          side: THREE.DoubleSide,
+        });
+        const ceilingLight = new THREE.Mesh(ceilingGeo, ceilingMat);
+        ceilingLight.rotation.x = -Math.PI / 2;
+        ceilingLight.position.set(0, floorY + floorHeight / 2 - 1.15, 0);
+        buildingGroup.add(ceilingLight);
         
         // Device Nodes Inside the Lab
         if (labDevices.length > 0) {
@@ -320,13 +545,21 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
         
         // Metal/Concrete Frame
         const frameGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(floorSize, floorHeight, floorSize));
-        const frameMat = new THREE.LineBasicMaterial({ color: 0x475569, linewidth: 2 });
+        const frameMat = new THREE.LineBasicMaterial({
+          color: labActive ? 0x475569 : 0x334155,
+          transparent: true,
+          opacity: labActive ? 1 : 0.5,
+        });
         const frame = new THREE.LineSegments(frameGeo, frameMat);
         frame.position.y = floorY;
         
         // Add floor plates
         const plateGeo = new THREE.BoxGeometry(floorSize + 1, 1, floorSize + 1);
-        const plateMat = new THREE.MeshStandardMaterial({ color: 0x64748b });
+        const plateMat = new THREE.MeshStandardMaterial({
+          color: labActive ? 0x64748b : 0x334155,
+          roughness: labActive ? 0.65 : 0.92,
+          metalness: labActive ? 0.12 : 0.38,
+        });
         const plateTop = new THREE.Mesh(plateGeo, plateMat);
         plateTop.position.y = floorY + floorHeight / 2;
         const plateBottom = new THREE.Mesh(plateGeo, plateMat);
@@ -336,9 +569,9 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
           type: 'lab', 
           name: lab.name, 
           assetName: asset.name, 
-          status: hasOnline ? '使用中' : '空闲',
+          status: labActive ? '实训开启中' : '未开启（0 在线）',
           deviceCount: labDevices.length,
-          onlineCount: labDevices.filter(d => d.status === 'online').length
+          onlineCount,
         };
         
         buildingGroup.add(glassMesh);
@@ -357,13 +590,26 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
         ];
         const lineGeo = new THREE.BufferGeometry();
         lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePos, 3));
-        const lineMat = new THREE.LineBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.5 });
+        const lineMat = new THREE.LineBasicMaterial({
+          color: labActive ? 0x94a3b8 : 0x475569,
+          transparent: true,
+          opacity: labActive ? 0.5 : 0.22,
+        });
         const line = new THREE.Line(lineGeo, lineMat);
         buildingGroup.add(line);
         
-        const labLabel = createTextSprite(lab.short || lab.name, '#475569', 32);
+        const labLabel = createTextSprite(
+          lab.short || lab.name,
+          labActive ? '#475569' : '#64748b',
+          32
+        );
         labLabel.position.set(labelXOffset * 0.8, floorY, labelZOffset * 0.8);
         labLabel.scale.set(60, 15, 1);
+        if (!labActive) {
+          const sm = labLabel.material as THREE.SpriteMaterial;
+          sm.transparent = true;
+          sm.opacity = 0.55;
+        }
         buildingGroup.add(labLabel);
       });
       
@@ -372,7 +618,7 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
       buildingGroup.add(bLabel);
     });
 
-    // 6. Interaction
+    // 6. Interaction — 绑定到 canvas 而不是 container
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     
@@ -386,14 +632,15 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
       
       if (intersects.length > 0) {
         setHoveredInfo(intersects[0].object.userData);
-        container.style.cursor = 'pointer';
+        renderer.domElement.style.cursor = 'pointer';
       } else {
         setHoveredInfo(null);
-        container.style.cursor = '';
+        renderer.domElement.style.cursor = 'grab';
       }
     };
     
-    container.addEventListener('mousemove', onMouseMove);
+    // 绑定到 canvas，使用 passive 避免阻止 OrbitControls
+    renderer.domElement.addEventListener('mousemove', onMouseMove, { passive: true });
     
     // 7. Animation
     let animationFrameId: number;
@@ -404,19 +651,27 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
     };
     animate();
     
-    // Resize
-    const handleResize = () => {
-      camera.aspect = container.clientWidth / container.clientHeight;
+    const syncSize = () => {
+      const w = Math.max(1, Math.floor(container.clientWidth));
+      const h = Math.max(1, Math.floor(container.clientHeight));
+      camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setSize(w, h);
     };
-    window.addEventListener('resize', handleResize);
+    const resizeObserver = new ResizeObserver(() => {
+      syncSize();
+    });
+    resizeObserver.observe(container);
     
     return () => {
-      window.removeEventListener('resize', handleResize);
-      container.removeEventListener('mousemove', onMouseMove);
+      resizeObserver.disconnect();
+      renderer.domElement.removeEventListener('mousemove', onMouseMove);
+      controls.dispose();
       cancelAnimationFrame(animationFrameId);
       renderer.dispose();
+      if (renderer.domElement.parentNode === container) {
+        container.removeChild(renderer.domElement);
+      }
       scene.traverse((obj: any) => {
         if (obj.geometry) obj.geometry.dispose();
         if (obj.material) {
@@ -428,32 +683,43 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
   }, [devices, assets]);
 
   return (
-    <div className="w-full h-full relative bg-slate-100 rounded-xl overflow-hidden shadow-inner group border border-slate-200">
-      <div ref={containerRef} className="w-full h-full absolute inset-0" />
-      
-      {/* HUD Info */}
-      <div className="absolute top-4 left-4 pointer-events-none z-10">
+    <div
+      className="w-full h-full relative rounded-xl border border-slate-200 shadow-inner bg-slate-100"
+      style={{ minHeight: 0, overflow: 'hidden', isolation: 'isolate' }}
+    >
+      {/* Three.js canvas 容器 */}
+      <div
+        ref={containerRef}
+        style={{
+          position: 'absolute', inset: 0,
+          zIndex: 0,
+        }}
+      />
+
+      {/* HUD Info — pointer-events-none 覆盖层 */}
+      <div className="absolute top-4 left-4 pointer-events-none" style={{ zIndex: 10 }}>
         <h3 className="text-slate-800 font-bold tracking-wide flex items-center gap-2 drop-shadow-sm">
           <Building2 className="w-5 h-5 text-indigo-600" /> 校园实训资产数字孪生
         </h3>
         <p className="text-slate-500 text-[10px] mt-1 font-medium bg-white/60 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-200 shadow-sm">
-          🌤️ 白天模式。楼层高亮表示实训中。支持全视角旋转与缩放交互。
+          🌤️ 左键旋转 · 右键平移 · 滚轮缩放
         </p>
       </div>
 
       {/* Tooltip */}
       <AnimatePresence>
         {hoveredInfo && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="absolute top-4 right-4 bg-white/90 backdrop-blur-xl border border-slate-200 p-4 rounded-xl shadow-2xl pointer-events-none text-slate-800 min-w-[220px] z-50"
+            className="absolute top-4 right-4 bg-white/90 backdrop-blur-xl border border-slate-200 p-4 rounded-xl shadow-2xl text-slate-800 min-w-[220px]"
+            style={{ zIndex: 10, pointerEvents: 'none' }}
           >
             <div className="text-[10px] text-indigo-600 font-bold mb-1 uppercase tracking-wider">{hoveredInfo.assetName}</div>
             <div className="text-lg font-bold mb-2 border-b border-slate-100 pb-2">{hoveredInfo.name}</div>
             <div className="space-y-1.5 text-xs text-slate-600">
-              <div className="flex justify-between"><span>实训状态:</span><span className={cn("font-bold", hoveredInfo.status === '使用中' ? "text-emerald-600" : "text-slate-400")}>{hoveredInfo.status}</span></div>
+              <div className="flex justify-between"><span>实训状态:</span><span className={cn("font-bold", hoveredInfo.status === '实训开启中' ? "text-emerald-600" : "text-slate-500")}>{hoveredInfo.status}</span></div>
               <div className="flex justify-between"><span>终端总数:</span><span className="font-mono font-bold">{hoveredInfo.deviceCount}</span></div>
               <div className="flex justify-between"><span>在线运行:</span><span className="font-mono text-emerald-500 font-bold">{hoveredInfo.onlineCount}</span></div>
             </div>
@@ -462,9 +728,12 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
       </AnimatePresence>
 
       {/* Legend */}
-      <div className="absolute bottom-4 right-4 bg-white/70 backdrop-blur-md p-3 rounded-xl border border-slate-200 text-[10px] text-slate-600 shadow-lg space-y-2 z-10 pointer-events-none">
-        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-sky-500 shadow-[0_0_8px_#0ea5e9]"></div><span className="font-bold">实训开启中</span></div>
-        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-slate-300"></div><span className="font-bold">资源闲置中</span></div>
+      <div
+        className="absolute bottom-4 right-4 bg-white/70 backdrop-blur-md p-3 rounded-xl border border-slate-200 text-[10px] text-slate-600 shadow-lg space-y-2"
+        style={{ zIndex: 10, pointerEvents: 'none' }}
+      >
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-sky-500 shadow-[0_0_8px_#0ea5e9]"></div><span className="font-bold">实训开启中（≥1 在线）</span></div>
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-slate-800 border border-slate-600 shadow-inner"></div><span className="font-bold">未开启（0 在线·关灯）</span></div>
       </div>
     </div>
   );
@@ -473,6 +742,11 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
 export default function OperationDashboard() {
   const dashboardRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // 左侧平面图/右侧 3D 模块的“局部全屏”
+  const leftModuleRef = useRef<HTMLDivElement>(null);
+  const rightModuleRef = useRef<HTMLDivElement>(null);
+  const [subFullscreen, setSubFullscreen] = useState<'left' | 'right' | null>(null);
   
   const [time, setTime] = useState(new Date());
   const [activeLabs, setActiveLabs] = useState(heatmapData.slice(0, 4).map(l => l.name));
@@ -539,8 +813,14 @@ export default function OperationDashboard() {
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
+
+      const el = document.fullscreenElement;
+      if (el && el === leftModuleRef.current) setSubFullscreen('left');
+      else if (el && el === rightModuleRef.current) setSubFullscreen('right');
+      else setSubFullscreen(null);
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    handleFullscreenChange();
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
@@ -552,6 +832,32 @@ export default function OperationDashboard() {
     } else {
       document.exitFullscreen();
     }
+  };
+
+  const toggleSubFullscreen = (target: 'left' | 'right') => {
+    const el = target === 'left' ? leftModuleRef.current : rightModuleRef.current;
+    if (!el) return;
+
+    // 已在全屏：点击同一模块则退出；否则先退出再切换到目标模块
+    if (document.fullscreenElement) {
+      if (document.fullscreenElement === el) {
+        document.exitFullscreen();
+        return;
+      }
+      document.exitFullscreen();
+      setTimeout(() => {
+        if (!document.fullscreenElement) {
+          el.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable sub fullscreen: ${err.message}`);
+          });
+        }
+      }, 60);
+      return;
+    }
+
+    el.requestFullscreen().catch(err => {
+      console.error(`Error attempting to enable sub fullscreen: ${err.message}`);
+    });
   };
 
   const formatDate = (date: Date) => {
@@ -803,7 +1109,7 @@ export default function OperationDashboard() {
         </div>
 
         {/* --- Middle Section (Device Online Status) --- */}
-        <div className="bg-white border border-purple-100 rounded-2xl p-5 shadow-sm flex flex-col flex-1 min-h-[500px]">
+        <div className="bg-white border border-purple-100 rounded-2xl p-5 shadow-sm flex flex-col flex-1 min-h-[333px]">
           <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-4 shrink-0">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <LayoutGrid className="w-5 h-5 text-purple-600" /> 终端设备在线状态
@@ -822,19 +1128,33 @@ export default function OperationDashboard() {
           
           <div className="flex-1 flex gap-5 min-h-0 pt-2 pb-4">
             {/* 左侧：楼房热力图 */}
-            <div className="w-[60%] overflow-auto flex flex-col shrink-0">
-                <div className="flex-1 bg-gradient-to-b from-slate-50/80 to-white rounded-xl overflow-auto relative border border-purple-100 shadow-inner">
+            <div
+              ref={leftModuleRef}
+              className={cn(
+                "w-1/2 min-h-0 flex flex-col shrink-0 min-w-0 relative",
+                subFullscreen === 'left' && "w-full h-full"
+              )}
+            >
+              <button
+                onClick={() => toggleSubFullscreen('left')}
+                className="absolute top-3 right-3 z-30 p-2 text-slate-600 bg-white/70 backdrop-blur-md hover:bg-white rounded-xl border border-slate-200 transition-colors"
+                title={subFullscreen === 'left' ? "退出左侧全屏" : "左侧全屏"}
+              >
+                {subFullscreen === 'left' ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              </button>
+
+                <div className="flex-1 bg-gradient-to-b from-slate-50/80 to-white rounded-xl overflow-x-auto overflow-y-auto relative border border-purple-100 shadow-inner scroll-smooth">
                   {/* 背景网格 */}
                   <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ 
                     backgroundImage: `linear-gradient(#f3e8ff 1px, transparent 1px), linear-gradient(90deg, #f3e8ff 1px, transparent 1px)`,
                     backgroundSize: '24px 24px'
                   }}></div>
-                  {/* 地面线 */}
-                  <div className="absolute bottom-[52px] left-6 right-6 h-px bg-slate-300/50 pointer-events-none z-[1]"></div>
-                  <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-stone-100/90 via-stone-50/50 to-transparent pointer-events-none rounded-b-xl z-[1]"></div>
+                  {/* 地面线 — 提高位置，避免遮挡楼体底部 */}
+                  <div className="absolute bottom-[72px] left-4 right-4 h-px bg-slate-300/50 pointer-events-none z-[1]"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-[72px] bg-gradient-to-t from-stone-100/85 via-stone-50/35 to-transparent pointer-events-none rounded-b-xl z-[1]"></div>
 
-                  {/* 楼房天际线 */}
-                  <div className="relative z-10 flex gap-8 items-stretch justify-center px-8 pb-14 pt-6 min-h-full">
+                  {/* 楼房天际线：左对齐 + 横向滚动，避免 justify-center 裁切最左侧 A 栋 */}
+                  <div className="relative z-10 flex flex-nowrap gap-5 items-start justify-start pl-4 pr-6 pt-6 pb-24 min-h-full min-w-min">
                     {assets.map((asset, assetIdx) => {
                       const assetDevices = allDevices.filter(d => d.assetId === asset.id);
                       const onlineCount = assetDevices.filter(d => d.status === 'online').length;
@@ -849,34 +1169,55 @@ export default function OperationDashboard() {
                       const s = styles[assetIdx % styles.length];
 
                       return (
-                        <motion.div key={asset.id} className="flex flex-col items-center h-full"
+                        <motion.div key={asset.id} className="flex flex-col items-center shrink-0 w-[200px]"
                           initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.6, delay: assetIdx * 0.12, ease: 'easeOut' }}>
-                          <div className="relative group/building w-[220px] flex flex-col h-full">
+                          <div className="relative group/building w-full flex flex-col">
                             {/* 天线 */}
                             <div className="flex justify-center mb-[-1px] shrink-0"><div className="w-px h-4 bg-slate-300"></div></div>
                             <div className="flex justify-center mb-[-1px] shrink-0"><div className="w-6 h-1 bg-slate-300 rounded-t"></div></div>
                             {/* 屋顶 */}
-                            <div className={cn("bg-gradient-to-r text-white px-4 py-3 rounded-t-xl text-center relative overflow-hidden shadow-lg shrink-0", s.gradient)}>
+                            <div className={cn("bg-gradient-to-r text-white px-3 py-2.5 rounded-t-xl text-center relative overflow-hidden shadow-lg shrink-0", s.gradient)}>
                               <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 10px, white 10px, white 11px)` }}></div>
                               <Building2 className="w-5 h-5 mx-auto mb-1 opacity-80 relative z-10" />
-                              <div className="text-sm font-black tracking-wide relative z-10">{asset.name}</div>
-                              <div className="text-[10px] opacity-80 font-medium mt-0.5 relative z-10">{onlineCount}/{totalCount} 在线 · {onlineRate}%</div>
+                              <div className="text-xs font-black tracking-wide relative z-10 leading-tight">{asset.name}</div>
+                              <div className="text-[9px] opacity-70 font-medium relative z-10 mt-0.5">{(asset as { shortAddr: string }).shortAddr}</div>
+                              <div className="text-[10px] opacity-80 font-medium mt-1 relative z-10">{onlineCount}/{totalCount} 在线 · {onlineRate}%</div>
                             </div>
                             {/* 楼体（实训室楼层） */}
                             <div className="bg-white shadow-md flex-1" style={{ borderLeft: `2px solid ${s.bc}30`, borderRight: `2px solid ${s.bc}30` }}>
                               {asset.labs.map((lab, labIdx) => {
                                 const labDevices = allDevices.filter(d => d.labId === lab.id);
                                 const labOnline = labDevices.filter(d => d.status === 'online').length;
+                                const labOpen = labOnline > 0;
                                 return (
-                                  <div key={lab.id} className={cn("px-3 py-3 relative", labIdx > 0 && "border-t border-slate-200")}>
-                                    <div className="flex items-center gap-1.5 mb-2">
-                                      <div className="w-1 h-4 rounded-full" style={{ backgroundColor: `${s.bc}60` }}></div>
-                                      <Monitor className="w-3 h-3 text-slate-400 shrink-0" />
-                                      <span className="text-[11px] font-bold text-slate-700 truncate">{lab.short}</span>
-                                      <span className="text-[9px] text-slate-400 ml-auto whitespace-nowrap font-medium">{labOnline}/{labDevices.length}</span>
+                                  <div
+                                    key={lab.id}
+                                    className={cn(
+                                      "px-2.5 py-2.5 relative transition-colors",
+                                      labIdx > 0 && "border-t border-slate-200",
+                                      !labOpen && "bg-slate-100/90 border-l-2 border-l-slate-400/60"
+                                    )}
+                                  >
+                                    <div className="flex items-center gap-1 mb-1.5 min-w-0">
+                                      <div className="w-1 h-4 rounded-full shrink-0" style={{ backgroundColor: labOpen ? `${s.bc}70` : '#94a3b8' }}></div>
+                                      <Monitor className={cn("w-3 h-3 shrink-0", labOpen ? "text-slate-400" : "text-slate-500")} />
+                                      <div className="min-w-0 flex-1">
+                                        <span className={cn("text-[10px] font-bold truncate block", labOpen ? "text-slate-700" : "text-slate-500")}>{lab.short}</span>
+                                        {'room' in lab && (lab as { room?: string }).room && (
+                                          <span className="text-[8px] text-slate-400 font-mono">{(lab as { room?: string }).room}</span>
+                                        )}
+                                      </div>
+                                      <div className="flex flex-col items-end gap-0.5 shrink-0">
+                                        {!labOpen && (
+                                          <span className="text-[8px] font-bold text-slate-600 bg-slate-300/70 px-1 py-0.5 rounded">未开启</span>
+                                        )}
+                                        <span className={cn("text-[9px] whitespace-nowrap font-medium tabular-nums", labOpen ? "text-slate-500" : "text-slate-400")}>
+                                          {labOnline}/{labDevices.length}
+                                        </span>
+                                      </div>
                                     </div>
-                                    <div className="grid grid-cols-6 gap-[3px]">
+                                    <div className="grid grid-cols-7 gap-[2px]">
                                       {labDevices.map(device => (
                                         <div key={device.id}
                                           className="aspect-square rounded-[3px] flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-[1.35] hover:z-20 relative group/cell shadow-sm"
@@ -925,8 +1266,22 @@ export default function OperationDashboard() {
                   </div>
                 </div>
             </div>
-            {/* 右侧：网状视图 */}
-            <div className="flex-1 min-w-0 flex flex-col">
+            {/* 右侧：3D 场景 */}
+            <div
+              ref={rightModuleRef}
+              className={cn(
+                "flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden rounded-xl relative",
+                subFullscreen === 'right' && "w-full h-full"
+              )}
+            >
+              <button
+                onClick={() => toggleSubFullscreen('right')}
+                className="absolute top-3 right-3 z-30 p-2 text-slate-600 bg-white/70 backdrop-blur-md hover:bg-white rounded-xl border border-slate-200 transition-colors"
+                title={subFullscreen === 'right' ? "退出右侧全屏" : "右侧全屏"}
+              >
+                {subFullscreen === 'right' ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              </button>
+
               <CampusScene3D devices={allDevices} assets={assets} />
             </div>
           </div>
