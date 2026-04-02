@@ -4,8 +4,8 @@ import * as d3 from 'd3';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-  BarChart, Bar, Cell, PieChart, Pie, Legend
+  AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
+  BarChart, Bar, Legend
 } from 'recharts';
 import { 
   CloudRain, Clock, Calendar, MonitorPlay, Cpu, Activity, 
@@ -24,6 +24,35 @@ const trendData = {
   '6months': Array.from({length: 6}, (_, i) => ({ name: `${i+1}月`, 时长: Math.floor(Math.random() * 1200 + 500) })),
   '1year': Array.from({length: 12}, (_, i) => ({ name: `${i+1}月`, 时长: Math.floor(Math.random() * 1500 + 600) })),
 };
+
+const questionWords = [
+  { text: '传感器偏差', size: 42, color: '#9333ea' },
+  { text: 'PLC通讯中断', size: 38, color: '#ef4444' },
+  { text: '网关上云', size: 35, color: '#3b82f6' },
+  { text: 'Lora协议', size: 30, color: '#10b981' },
+  { text: '固件更新', size: 28, color: '#f59e0b' },
+  { text: '寄存器地址', size: 26, color: '#6366f1' },
+  { text: '机械臂路径', size: 32, color: '#ec4899' },
+  { text: '视觉识别失败', size: 24, color: '#8b5cf6' },
+  { text: 'Modbus响应', size: 22, color: '#14b8a6' },
+  { text: 'MQTT连接', size: 34, color: '#2563eb' },
+  { text: '电压不稳定', size: 27, color: '#d946ef' },
+  { text: '边缘计算', size: 31, color: '#0ea5e9' },
+  { text: '串口无数据', size: 25, color: '#f43f5e' },
+  { text: '智能体协作', size: 29, color: '#84cc16' },
+  { text: '环境监测', size: 20, color: '#64748b' },
+  { text: '急停触发', size: 36, color: '#ef4444' }
+];
+
+const fifteenDaysData = Array.from({length: 15}, (_, i) => {
+  const d = new Date();
+  d.setDate(d.getDate() - (14 - i));
+  return {
+    name: `${d.getMonth()+1}/${d.getDate()}`,
+    labUsage: Math.floor(Math.random() * 100 + 50),
+    agentOnline: Math.floor(Math.random() * 1000 + 300)
+  };
+});
 
 const heatmapData = [
   { id: 1, name: '物联网综合实训室', asset: 'A栋-101', agents: 45, online: true, duration: '12h 30m' },
@@ -159,11 +188,7 @@ assets.forEach(asset => {
   });
 });
 
-const deviceStatusPieData = [
-  { name: '在线', value: allDevices.filter(d => d.status === 'online').length },
-  { name: '离线', value: allDevices.filter(d => d.status === 'offline').length },
-  { name: '异常', value: allDevices.filter(d => d.status === 'abnormal').length },
-];
+
 
 function countLabsWithAnyOnline(assetId: string) {
   const a = assets.find(x => x.id === assetId);
@@ -234,10 +259,22 @@ const aiSuggestions = [
   { type: 'suggestion', title: '维护建议', desc: '物联网中心网关连续高负载运行超 300 小时，建议安排例行检查。' },
 ];
 
-const PIE_COLORS = {
-  usage: ['#9333ea', '#f1f5f9'],
-  status: ['#10b981', '#94a3b8', '#ef4444'],
-};
+
+
+// --- Helper: Auto-updating number component for telemetry ---
+function AutoUpdatingNumber({ initialValue, stepSize = 3, interval = 3000 }: { initialValue: number, stepSize?: number, interval?: number }) {
+  const [value, setValue] = useState(initialValue);
+
+  useEffect(() => {
+    // Add a random offset so components don't update exactly at the same ms
+    const timer = setInterval(() => {
+      setValue(prev => prev + Math.floor(Math.random() * stepSize) + 1);
+    }, interval + Math.random() * 500);
+    return () => clearInterval(timer);
+  }, [stepSize, interval]);
+
+  return <>{value.toLocaleString()}</>;
+}
 
 // --- Helper: Create Text Sprite ---
 function createTextSprite(text: string, color: string = '#ffffff', fontSize: number = 32) {
@@ -739,6 +776,30 @@ function CampusScene3D({ devices, assets }: { devices: any[], assets: any[] }) {
   );
 }
 
+function QuestionWordCloud() {
+  return (
+    <div className="w-full h-full flex flex-wrap items-center justify-center gap-3 p-4 select-none">
+      {questionWords.map((word, idx) => (
+        <motion.span
+          key={idx}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ scale: 1.2, zIndex: 20 }}
+          style={{ 
+            fontSize: `${word.size / 2 + 10}px`,
+            color: word.color,
+            cursor: 'default',
+            fontWeight: word.size > 30 ? '800' : '500'
+          }}
+          className="px-2 py-1 rounded-lg hover:bg-slate-50 transition-colors drop-shadow-sm"
+        >
+          {word.text}
+        </motion.span>
+      ))}
+    </div>
+  );
+}
+
 export default function OperationDashboard() {
   const dashboardRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -783,6 +844,19 @@ export default function OperationDashboard() {
       setChatMessages(prev => [...prev, { role: 'assistant', content: response }]);
     }, 1000);
   };
+
+  // Ranking Tab State
+  const [activeRankTab, setActiveRankTab] = useState<'agent' | 'lab' | 'user'>('agent');
+  useEffect(() => {
+    const tabs: ('agent' | 'lab' | 'user')[] = ['agent', 'lab', 'user'];
+    const timer = setInterval(() => {
+      setActiveRankTab(current => {
+        const nextIdx = (tabs.indexOf(current) + 1) % tabs.length;
+        return tabs[nextIdx];
+      });
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Tree & Heatmap State
   const [expandedNodes, setExpandedNodes] = useState<string[]>(['A', 'B', 'C', 'D']);
@@ -968,59 +1042,94 @@ export default function OperationDashboard() {
         {/* --- Middle Section --- */}
         <div className="flex gap-6 h-[520px] shrink-0">
           
-          {/* Left: Lab Usage Analysis */}
+          {/* Left: 5 Core Metrics */}
           <div className="w-[400px] bg-white border border-purple-100 rounded-2xl p-6 flex flex-col shadow-sm relative overflow-hidden shrink-0">
-            <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <Activity className="w-7 h-7 text-purple-600" /> 实训室使用分析
+            <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2 relative z-10">
+              <Sparkles className="w-6 h-6 text-amber-500" /> 核心运营指标
             </h2>
-            <div className="flex-1 flex flex-col gap-8 overflow-y-auto pr-2 custom-scrollbar">
-              {/* Lab Usage Ratio (Stacked Bar Chart) */}
-              <div className="flex flex-col items-center">
-                <h3 className="text-sm font-bold text-slate-600 mb-2 self-start">实训室使用比例 (按资产)</h3>
-                <div className="w-full h-[180px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={labUsageBarData}
-                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
-                      <RechartsTooltip 
-                        cursor={{fill: 'transparent'}}
-                        contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
-                      />
-                      <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ fontSize: '10px', paddingBottom: '10px' }} />
-                      <Bar dataKey="使用中" stackId="a" fill="#9333ea" radius={[0, 0, 0, 0]} barSize={24} />
-                      <Bar dataKey="未使用" stackId="a" fill="#f1f5f9" radius={[4, 4, 0, 0]} barSize={24} />
-                    </BarChart>
-                  </ResponsiveContainer>
+            <div className="flex-1 flex gap-4 w-full">
+              {/* Left Column (staggered down) */}
+              <div className="flex flex-col gap-4 w-1/2 pt-6">
+                {/* Metric 2: 终端设备 */}
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-100 rounded-2xl p-4 flex flex-col shadow-sm group hover:-translate-y-1 transition-transform cursor-default relative overflow-hidden shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 text-blue-500 group-hover:scale-110 transition-transform">
+                    <MonitorPlay className="w-4 h-4" />
+                  </div>
+                  <div className="text-slate-500 text-[11px] font-bold mb-1">终端设备累计在线</div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-black tracking-tight font-mono text-blue-600 drop-shadow-sm">
+                      <AutoUpdatingNumber initialValue={89200} stepSize={2} interval={8000} />
+                    </span>
+                    <span className="text-blue-500/70 text-[10px] font-bold">h</span>
+                  </div>
+                </div>
+
+                {/* Metric 3: 硬件智能体回答 (Tall) */}
+                <div className="bg-gradient-to-b from-emerald-400 to-teal-500 border border-emerald-400 rounded-2xl p-4 flex flex-col shadow-md group hover:-translate-y-1 transition-transform cursor-default relative overflow-hidden flex-1">
+                  <div className="absolute -right-4 -bottom-4 opacity-20 group-hover:scale-125 transition-transform duration-500 pointer-events-none">
+                    <MessageSquare className="w-24 h-24 text-white" />
+                  </div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none transition-transform group-hover:translate-x-4"></div>
+                  
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mb-4 text-white backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  <div className="text-emerald-50 text-[11px] font-bold mb-auto relative z-10">硬件智能体回答累计</div>
+                  <div className="flex flex-col mt-4 relative z-10">
+                    <span className="text-3xl font-black tracking-tight font-mono text-white leading-none drop-shadow-md">
+                      <AutoUpdatingNumber initialValue={145230} stepSize={3} interval={3000} />
+                    </span>
+                    <span className="text-emerald-100 text-[10px] font-bold mt-1.5 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span> 次回答
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Terminal Online Ratio */}
-              <div className="flex flex-col items-center">
-                <h3 className="text-sm font-bold text-slate-600 mb-2 self-start">终端在线比例</h3>
-                <div className="w-full h-[160px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={deviceStatusPieData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={45}
-                        outerRadius={65}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {deviceStatusPieData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={PIE_COLORS.status[index % PIE_COLORS.status.length]} />
-                        ))}
-                      </Pie>
-                      <RechartsTooltip />
-                      <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
+              {/* Right Column (staggered up) */}
+              <div className="flex flex-col gap-4 w-1/2 pb-6">
+                {/* Metric 1: 累计使用时长 (Large, emphasize) */}
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 rounded-2xl p-5 flex flex-col shadow-sm group hover:-translate-y-1 transition-transform cursor-default relative overflow-hidden shrink-0">
+                  <div className="absolute -top-2 -right-2 p-4 opacity-10 group-hover:opacity-20 group-hover:rotate-12 transition-all pointer-events-none">
+                    <Clock className="w-14 h-14 text-amber-500" />
+                  </div>
+                  <div className="text-slate-500 text-[11px] font-bold mb-3 relative z-10">实训室累计使用时长</div>
+                  <div className="flex items-baseline gap-1 mt-1 relative z-10">
+                    <span className="text-3xl font-black tracking-tight font-mono text-amber-600 drop-shadow-sm">
+                      <AutoUpdatingNumber initialValue={12450} stepSize={1} interval={10000} />
+                    </span>
+                    <span className="text-amber-500/70 text-[10px] font-bold">h</span>
+                  </div>
+                </div>
+
+                {/* Metric 4: 登录次数 */}
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-100 rounded-2xl p-4 flex flex-col shadow-sm group hover:-translate-y-1 transition-transform cursor-default relative overflow-hidden shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 text-purple-500 group-hover:scale-110 transition-transform">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div className="text-slate-500 text-[11px] font-bold mb-1">系统登录次数</div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-black tracking-tight font-mono text-purple-600 drop-shadow-sm">
+                      <AutoUpdatingNumber initialValue={34510} stepSize={2} interval={5000} />
+                    </span>
+                    <span className="text-purple-500/70 text-[10px] font-bold">次</span>
+                  </div>
+                </div>
+
+                {/* Metric 5: 指令执行 */}
+                <div className="bg-gradient-to-br from-slate-50 to-indigo-50/80 border border-indigo-100 rounded-2xl p-4 flex flex-col shadow-sm group hover:-translate-y-1 transition-transform cursor-default relative overflow-hidden shrink-0">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-full bg-white shadow-sm flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
+                      <Cpu className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="text-slate-500 text-[11px] font-bold leading-tight">串口指令<br/>执行次数</div>
+                  </div>
+                  <div className="flex items-baseline gap-1 mt-auto">
+                    <span className="text-[22px] font-black tracking-tight font-mono text-indigo-600 drop-shadow-sm">
+                      <AutoUpdatingNumber initialValue={542880} stepSize={5} interval={800} />
+                    </span>
+                    <span className="text-indigo-500/70 text-[10px] font-bold">次</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1066,50 +1175,72 @@ export default function OperationDashboard() {
             </div>
           </div>
 
-          {/* Right: Trend Chart */}
-          <div className="w-1/4 bg-white border border-purple-100 rounded-2xl p-5 flex flex-col shadow-sm relative overflow-hidden">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-purple-600" /> 平均使用趋势
-              </h2>
-              <select 
-                value={trendRange}
-                onChange={(e: any) => setTrendRange(e.target.value)}
-                className="bg-white border border-slate-200 text-slate-700 text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-medium shadow-sm"
-              >
-                <option value="2weeks">近2周</option>
-                <option value="1month">近1个月</option>
-                <option value="3months">近3个月</option>
-                <option value="6months">近半年</option>
-                <option value="1year">近1年</option>
-              </select>
-            </div>
-            <div className="flex-1 w-full relative">
-              <div className="absolute -left-4 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] text-slate-400 tracking-widest font-medium">使用时长 (小时)</div>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trendData[trendRange]} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorDuration" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#9333ea" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#9333ea" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} dx={-10} />
-                  <RechartsTooltip 
-                    contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', color: '#0f172a', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    itemStyle={{ color: '#9333ea', fontWeight: 'bold' }}
-                  />
-                  <Area type="monotone" dataKey="时长" stroke="#9333ea" strokeWidth={3} fillOpacity={1} fill="url(#colorDuration)" />
-                </AreaChart>
-              </ResponsiveContainer>
+          {/* Right: Trend Charts */}
+          <div className="w-[400px] bg-white border border-purple-100 rounded-2xl p-6 flex flex-col shadow-sm relative overflow-hidden shrink-0">
+            <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 shrink-0">
+              <TrendingUp className="w-6 h-6 text-indigo-500" /> 近15天趋势分析
+            </h2>
+            <div className="flex-1 flex flex-col gap-6 min-h-0">
+              
+              {/* Top Chart: Line Chart (Lab Usage) */}
+              <div className="flex-1 flex flex-col min-h-0">
+                <h3 className="text-sm font-bold text-slate-600 mb-2 flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500" /> 实训室使用时长
+                </h3>
+                <div className="flex-1 relative w-full pt-2">
+                  <div className="absolute -left-4 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] text-slate-400 tracking-widest font-medium z-10">时长 (h)</div>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={fifteenDaysData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} dy={5} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} />
+                      <RechartsTooltip 
+                        contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', color: '#0f172a', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
+                        itemStyle={{ color: '#f59e0b', fontWeight: 'bold' }}
+                      />
+                      <Line type="monotone" dataKey="labUsage" name="使用时长" stroke="#f59e0b" strokeWidth={3} dot={{r:3, fill:'#ffffff', stroke:'#f59e0b', strokeWidth:2}} activeDot={{r:5, fill:'#f59e0b', stroke:'#fff'}} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Separator */}
+              <div className="h-px bg-slate-100 shrink-0"></div>
+
+              {/* Bottom Chart: Area Chart (Terminal Online) */}
+              <div className="flex-1 flex flex-col min-h-0">
+                <h3 className="text-sm font-bold text-slate-600 mb-2 flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500" /> 终端在线时长
+                </h3>
+                <div className="flex-1 relative w-full pt-2">
+                  <div className="absolute -left-4 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] text-slate-400 tracking-widest font-medium z-10">时长 (h)</div>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={fifteenDaysData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorTerminal" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} dy={5} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} />
+                      <RechartsTooltip 
+                        contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', color: '#0f172a', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
+                        itemStyle={{ color: '#3b82f6', fontWeight: 'bold' }}
+                      />
+                      <Area type="monotone" dataKey="agentOnline" name="在线时长" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorTerminal)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
 
         {/* --- Middle Section (Device Online Status) --- */}
-        <div className="bg-white border border-purple-100 rounded-2xl p-5 shadow-sm flex flex-col flex-1 min-h-[333px]">
+        <div className="bg-white border border-purple-100 rounded-2xl p-5 shadow-sm flex flex-col h-[520px] shrink-0">
           <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-4 shrink-0">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <LayoutGrid className="w-5 h-5 text-purple-600" /> 终端设备在线状态
@@ -1153,8 +1284,11 @@ export default function OperationDashboard() {
                   <div className="absolute bottom-[72px] left-4 right-4 h-px bg-slate-300/50 pointer-events-none z-[1]"></div>
                   <div className="absolute bottom-0 left-0 right-0 h-[72px] bg-gradient-to-t from-stone-100/85 via-stone-50/35 to-transparent pointer-events-none rounded-b-xl z-[1]"></div>
 
-                  {/* 楼房天际线：左对齐 + 横向滚动，避免 justify-center 裁切最左侧 A 栋 */}
-                  <div className="relative z-10 flex flex-nowrap gap-5 items-start justify-start pl-4 pr-6 pt-6 pb-24 min-h-full min-w-min">
+                  {/* 楼房天际线：非全屏左对齐横向滚动，全屏居中 */}
+                  <div className={cn(
+                    "relative z-10 flex flex-nowrap gap-5 items-start pl-4 pr-6 pt-6 pb-24 min-h-full min-w-min",
+                    subFullscreen === 'left' ? "justify-center" : "justify-start"
+                  )}>
                     {assets.map((asset, assetIdx) => {
                       const assetDevices = allDevices.filter(d => d.assetId === asset.id);
                       const onlineCount = assetDevices.filter(d => d.status === 'online').length;
@@ -1287,114 +1421,118 @@ export default function OperationDashboard() {
           </div>
         </div>
 
-        {/* --- Bottom Section (Rankings) --- */}
-        <div className="flex gap-6 min-h-[320px] shrink-0">
-          
-          {/* Left: Agent Ranking */}
-          <div className="w-1/3 bg-white border border-purple-100 rounded-2xl p-6 flex flex-col shadow-sm relative overflow-hidden">
-            <h2 className="text-lg font-bold text-slate-900 mb-5 flex items-center gap-2">
-              <Cpu className="w-6 h-6 text-indigo-500" /> 硬件智能体时长排行
+        {/* --- Bottom Section (Moved Modules + Rankings) --- */}
+        <div className="flex gap-6 h-[400px] shrink-0">
+          {/* Left: Lab Usage Analysis */}
+          <div className="w-1/3 bg-white border border-purple-100 rounded-2xl p-6 flex flex-col shadow-sm relative overflow-hidden shrink-0">
+            <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+              <Activity className="w-7 h-7 text-purple-600" /> 实训室使用分析
             </h2>
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-slate-500 border-b border-slate-100">
-                  <tr>
-                    <th className="pb-3 font-medium w-12 text-center">排名</th>
-                    <th className="pb-3 font-medium">智能体名称</th>
-                    <th className="pb-3 font-medium text-right">时长 (h)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-purple-50">
-                  {agentRankData.map((item, i) => (
-                    <tr key={item.name} className="hover:bg-purple-50/50 transition-colors group">
-                      <td className="py-4 text-center">
-                        <span className={cn("inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold", 
-                          i === 0 ? "bg-amber-100 text-amber-600 shadow-sm" : 
-                          i === 1 ? "bg-slate-100 text-slate-600 shadow-sm" : 
-                          i === 2 ? "bg-orange-100 text-orange-600 shadow-sm" : "text-slate-400")}>
-                          {i + 1}
-                        </span>
-                      </td>
-                      <td className="py-4 font-medium text-slate-700">{item.name}</td>
-                      <td className="py-4 text-right font-mono font-bold text-indigo-600">{item.duration}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex-1 flex flex-col min-h-0">
+              {/* Lab Usage Ratio (Stacked Bar Chart) */}
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-sm font-bold text-slate-600 mb-4 self-start flex items-center gap-2">
+                   <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                   活跃实训室占比 (按资产)
+                </h3>
+                <div className="flex-1 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={labUsageBarData}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 20 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11, fontWeight: 500}} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
+                      <RechartsTooltip 
+                        cursor={{fill: 'rgba(147, 51, 234, 0.05)'}}
+                        contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '12px', fontSize: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ fontSize: '11px', paddingBottom: '20px' }} />
+                      <Bar dataKey="使用中" stackId="a" fill="#9333ea" radius={[0, 0, 0, 0]} barSize={28} />
+                      <Bar dataKey="未使用" stackId="a" fill="#f1f5f9" radius={[6, 6, 0, 0]} barSize={28} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Center: Lab Ranking */}
-          <div className="w-1/3 bg-white border border-purple-100 rounded-2xl p-6 flex flex-col shadow-sm relative overflow-hidden">
-            <h2 className="text-lg font-bold text-slate-900 mb-5 flex items-center gap-2">
-              <MonitorPlay className="w-6 h-6 text-purple-600" /> 实训室热度排行
+          {/* Center: AI Question Word Cloud */}
+          <div className="w-1/3 bg-white border border-purple-100 rounded-2xl p-5 flex flex-col shadow-sm relative overflow-hidden shrink-0">
+            <h2 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-purple-600" /> 硬件智能体问答热词
             </h2>
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-slate-500 border-b border-slate-100">
-                  <tr>
-                    <th className="pb-3 font-medium w-12 text-center">排名</th>
-                    <th className="pb-3 font-medium">实训室名称</th>
-                    <th className="pb-3 font-medium text-right">累计时长 (h)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-purple-50">
-                  {labRankData.map((item, i) => (
-                    <tr key={item.name} className="hover:bg-purple-50/50 transition-colors group">
-                      <td className="py-4 text-center">
-                        <span className={cn("inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold", 
-                          i === 0 ? "bg-amber-100 text-amber-600 shadow-sm" : 
-                          i === 1 ? "bg-slate-100 text-slate-600 shadow-sm" : 
-                          i === 2 ? "bg-orange-100 text-orange-600 shadow-sm" : "text-slate-400")}>
-                          {i + 1}
-                        </span>
-                      </td>
-                      <td className="py-4">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-slate-700">{item.name}</span>
-                          <span className="text-[10px] text-slate-400">{item.asset}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 text-right font-mono font-bold text-purple-600">{item.duration}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <p className="text-[10px] text-slate-400 mb-4 font-medium">
+              基于设备实时反馈与学生问答数据生成的实时云图
+            </p>
+            <div className="flex-1 w-full bg-slate-50/50 rounded-xl border border-slate-100/50 overflow-hidden">
+              <QuestionWordCloud />
             </div>
           </div>
+          <div className="w-1/3 bg-white border border-purple-100 rounded-2xl p-5 flex flex-col shadow-sm relative overflow-hidden shrink-0">
+            {/* Header with Title and Simple Tabs */}
+            <div className="flex justify-between items-center mb-6 shrink-0">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-indigo-600" /> 运营贡献榜
+              </h2>
+              <div className="flex gap-4">
+                {[
+                  { id: 'agent', label: '智能体' },
+                  { id: 'lab', label: '实训室' },
+                  { id: 'user', label: '实训达人' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveRankTab(tab.id as 'agent' | 'lab' | 'user')}
+                    className={cn(
+                      "text-[12px] font-bold transition-all relative py-1",
+                      activeRankTab === tab.id 
+                        ? "text-indigo-600" 
+                        : "text-slate-400 hover:text-slate-600"
+                    )}
+                  >
+                    {tab.label}
+                    {activeRankTab === tab.id && (
+                      <motion.div 
+                        layoutId="rankTabUnderline"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-full"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          {/* Right: User Ranking */}
-          <div className="w-1/3 bg-white border border-purple-100 rounded-2xl p-6 flex flex-col shadow-sm relative overflow-hidden">
-            <h2 className="text-lg font-bold text-slate-900 mb-5 flex items-center gap-2">
-              <User className="w-6 h-6 text-emerald-600" /> 实训达人排行
-            </h2>
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-slate-500 border-b border-slate-100">
+                <thead className="text-xs text-slate-500 border-b border-slate-100 sticky top-0 bg-white z-10">
                   <tr>
-                    <th className="pb-3 font-medium w-12 text-center">排名</th>
-                    <th className="pb-3 font-medium">姓名</th>
-                    <th className="pb-3 font-medium text-right">时长 (h)</th>
+                    <th className="pb-3 pt-1 font-medium w-12 text-center">排名</th>
+                    <th className="pb-3 pt-1 font-medium">名称</th>
+                    <th className="pb-3 pt-1 font-medium text-right">累计时长 (h)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-purple-50">
-                  {userRankData.map((item, i) => (
-                    <tr key={item.name} className="hover:bg-purple-50/50 transition-colors group">
-                      <td className="py-4 text-center">
-                        <span className={cn("inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold", 
+                <tbody className="divide-y divide-slate-50">
+                  {(activeRankTab === 'agent' ? agentRankData : activeRankTab === 'lab' ? labRankData : userRankData).map((item, i) => (
+                    <tr key={item.name} className="hover:bg-slate-50/70 transition-colors group">
+                      <td className="py-3.5 text-center">
+                        <span className={cn("inline-flex items-center justify-center w-6 h-6 rounded-md text-[11px] font-bold", 
                           i === 0 ? "bg-amber-100 text-amber-600 shadow-sm" : 
                           i === 1 ? "bg-slate-100 text-slate-600 shadow-sm" : 
-                          i === 2 ? "bg-orange-100 text-orange-600 shadow-sm" : "text-slate-400")}>
+                          i === 2 ? "bg-orange-100 text-orange-600 shadow-sm" : "text-slate-400 bg-transparent")}>
                           {i + 1}
                         </span>
                       </td>
-                      <td className="py-4">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-slate-700">{item.name}</span>
-                          <span className="text-[10px] text-slate-400">{item.class}</span>
+                      <td className="py-3.5">
+                        <div className="flex flex-col justify-center min-w-0">
+                          <span className="font-bold text-slate-700 text-[13px] truncate">{item.name}</span>
+                          {/* Subtitle based on tab */}
+                          {activeRankTab === 'lab' && <span className="text-[10px] text-slate-400 truncate">{(item as any).asset}</span>}
+                          {activeRankTab === 'user' && <span className="text-[10px] text-slate-400 truncate">{(item as any).class}</span>}
                         </div>
                       </td>
-                      <td className="py-4 text-right font-mono font-bold text-emerald-600">{item.duration}</td>
+                      <td className="py-3.5 text-right font-mono font-bold text-indigo-600 text-[13px]">{item.duration}</td>
                     </tr>
                   ))}
                 </tbody>
