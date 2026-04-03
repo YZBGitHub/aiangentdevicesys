@@ -789,7 +789,7 @@ export default function OperationReport() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                className="bg-slate-100 rounded-2xl shadow-2xl w-full max-w-4xl h-full max-h-[90vh] flex flex-col overflow-hidden"
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-full max-h-[90vh] flex flex-col overflow-hidden"
               >
                 {/* Toolbar */}
                 <div className="bg-white px-6 py-3 border-b border-slate-200 flex items-center justify-between shrink-0">
@@ -813,9 +813,9 @@ export default function OperationReport() {
                 </div>
                 
                 {/* Document Container */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center bg-slate-100">
+                <div className="flex-1 overflow-y-auto flex justify-center bg-white">
                   {/* A4 Paper */}
-                  <div className="bg-white w-full max-w-[794px] min-h-[1123px] shadow-md p-12 sm:p-16 text-slate-800 font-serif">
+                  <div className="bg-white w-full max-w-[794px] min-h-[1123px] p-12 sm:p-16 text-slate-800 font-serif">
                     <h1 className="text-3xl font-bold text-center mb-12">{viewingReport.name}</h1>
                     
                     <div className="space-y-8 text-justify leading-relaxed">
@@ -902,8 +902,8 @@ export default function OperationReport() {
                                     ))
                                   }
                                 </Pie>
-                                <Tooltip 
-                                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                <Tooltip
+                                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', background: '#ffffff' }}
                                 />
                                 <Legend verticalAlign="bottom" height={36} iconType="circle" />
                               </PieChart>

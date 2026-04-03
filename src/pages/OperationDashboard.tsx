@@ -1042,96 +1042,108 @@ export default function OperationDashboard() {
         {/* --- Middle Section --- */}
         <div className="flex gap-6 h-[520px] shrink-0">
           
-          {/* Left: 5 Core Metrics */}
-          <div className="w-[400px] bg-white border border-purple-100 rounded-2xl p-6 flex flex-col shadow-sm relative overflow-hidden shrink-0">
-            <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2 relative z-10">
-              <Sparkles className="w-6 h-6 text-amber-500" /> 核心运营指标
-            </h2>
-            <div className="flex-1 flex gap-4 w-full">
-              {/* Left Column (staggered down) */}
-              <div className="flex flex-col gap-4 w-1/2 pt-6">
-                {/* Metric 2: 终端设备 */}
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-100 rounded-2xl p-4 flex flex-col shadow-sm group hover:-translate-y-1 transition-transform cursor-default relative overflow-hidden shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 text-blue-500 group-hover:scale-110 transition-transform">
-                    <MonitorPlay className="w-4 h-4" />
-                  </div>
-                  <div className="text-slate-500 text-[11px] font-bold mb-1">终端设备累计在线</div>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-black tracking-tight font-mono text-blue-600 drop-shadow-sm">
-                      <AutoUpdatingNumber initialValue={89200} stepSize={2} interval={8000} />
-                    </span>
-                    <span className="text-blue-500/70 text-[10px] font-bold">h</span>
-                  </div>
-                </div>
+          {/* Left: Core Metrics — Precision Signal Panel */}
+          <div className="w-[400px] bg-white border border-slate-200/80 rounded-2xl flex flex-col shadow-sm overflow-hidden shrink-0">
 
-                {/* Metric 3: 硬件智能体回答 (Tall) */}
-                <div className="bg-gradient-to-b from-emerald-400 to-teal-500 border border-emerald-400 rounded-2xl p-4 flex flex-col shadow-md group hover:-translate-y-1 transition-transform cursor-default relative overflow-hidden flex-1">
-                  <div className="absolute -right-4 -bottom-4 opacity-20 group-hover:scale-125 transition-transform duration-500 pointer-events-none">
-                    <MessageSquare className="w-24 h-24 text-white" />
-                  </div>
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none transition-transform group-hover:translate-x-4"></div>
-                  
-                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mb-4 text-white backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-                    <MessageSquare className="w-4 h-4" />
-                  </div>
-                  <div className="text-emerald-50 text-[11px] font-bold mb-auto relative z-10">硬件智能体回答累计</div>
-                  <div className="flex flex-col mt-4 relative z-10">
-                    <span className="text-3xl font-black tracking-tight font-mono text-white leading-none drop-shadow-md">
-                      <AutoUpdatingNumber initialValue={145230} stepSize={3} interval={3000} />
-                    </span>
-                    <span className="text-emerald-100 text-[10px] font-bold mt-1.5 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span> 次回答
-                    </span>
-                  </div>
+            {/* ── Dark control header ── */}
+            <div className="bg-slate-950 px-5 py-3 flex items-center justify-between shrink-0">
+              <span className="flex items-center gap-2.5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                <span className="w-[3px] h-3.5 rounded-full bg-[var(--brand-coral)] inline-block" />
+                核心运营指标
+              </span>
+              <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-widest text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                LIVE
+              </span>
+            </div>
+
+            {/* ── Hero metric ── */}
+            <div className="relative px-5 pt-5 pb-4 border-b border-slate-100 shrink-0">
+              {/* Left coral accent bar */}
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[var(--brand-coral)]" />
+
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 mb-2.5">
+                硬件智能体 · 回答累计
+              </p>
+
+              <div className="flex items-end gap-3">
+                <span className="text-[50px] font-black tracking-tight font-mono text-slate-900 leading-none tabular-nums">
+                  <AutoUpdatingNumber initialValue={145230} stepSize={3} interval={3000} />
+                </span>
+                <div className="mb-1.5 flex flex-col gap-1">
+                  <span className="text-sm font-bold text-slate-400 leading-none">次</span>
+                  <span className="text-[10px] font-black text-emerald-500 whitespace-nowrap leading-none">
+                    ↑ 23.4% 较上月
+                  </span>
                 </div>
               </div>
 
-              {/* Right Column (staggered up) */}
-              <div className="flex flex-col gap-4 w-1/2 pb-6">
-                {/* Metric 1: 累计使用时长 (Large, emphasize) */}
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 rounded-2xl p-5 flex flex-col shadow-sm group hover:-translate-y-1 transition-transform cursor-default relative overflow-hidden shrink-0">
-                  <div className="absolute -top-2 -right-2 p-4 opacity-10 group-hover:opacity-20 group-hover:rotate-12 transition-all pointer-events-none">
-                    <Clock className="w-14 h-14 text-amber-500" />
-                  </div>
-                  <div className="text-slate-500 text-[11px] font-bold mb-3 relative z-10">实训室累计使用时长</div>
-                  <div className="flex items-baseline gap-1 mt-1 relative z-10">
-                    <span className="text-3xl font-black tracking-tight font-mono text-amber-600 drop-shadow-sm">
-                      <AutoUpdatingNumber initialValue={12450} stepSize={1} interval={10000} />
-                    </span>
-                    <span className="text-amber-500/70 text-[10px] font-bold">h</span>
-                  </div>
-                </div>
+              {/* Mini bar sparkline */}
+              <div className="mt-3 flex items-end gap-[2px] h-4">
+                {[28, 42, 33, 55, 48, 70, 62, 78, 68, 88, 82, 92, 85, 100].map((h, i) => (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-[1px]"
+                    style={{
+                      height: `${Math.round(h * 0.16)}px`,
+                      backgroundColor: i === 13 ? 'var(--brand-coral)' : `rgba(232,93,58,${0.15 + i * 0.05})`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
 
-                {/* Metric 4: 登录次数 */}
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-100 rounded-2xl p-4 flex flex-col shadow-sm group hover:-translate-y-1 transition-transform cursor-default relative overflow-hidden shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 text-purple-500 group-hover:scale-110 transition-transform">
-                    <User className="w-4 h-4" />
-                  </div>
-                  <div className="text-slate-500 text-[11px] font-bold mb-1">系统登录次数</div>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-black tracking-tight font-mono text-purple-600 drop-shadow-sm">
-                      <AutoUpdatingNumber initialValue={34510} stepSize={2} interval={5000} />
-                    </span>
-                    <span className="text-purple-500/70 text-[10px] font-bold">次</span>
-                  </div>
-                </div>
+            {/* ── Secondary metrics ── */}
+            <div className="flex-1 flex flex-col divide-y divide-slate-50 px-4 py-1">
+              {[
+                { label: '实训室累计使用时长', init: 12450,  step: 1, ivl: 10000, unit: 'h',  pct: 72, color: 'var(--brand-coral)', Icon: Clock       },
+                { label: '终端设备累计在线',   init: 89200,  step: 2, ivl: 8000,  unit: 'h',  pct: 85, color: '#4A90D9',           Icon: MonitorPlay  },
+                { label: '系统登录次数',       init: 34510,  step: 2, ivl: 5000,  unit: '次', pct: 58, color: '#8b5cf6',           Icon: User         },
+                { label: '串口指令执行次数',   init: 542880, step: 5, ivl: 800,   unit: '次', pct: 95, color: '#10b981',           Icon: Cpu          },
+              ].map((m, i) => {
+                const MetricIcon = m.Icon;
+                return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.12 * i + 0.25, duration: 0.35, ease: 'easeOut' }}
+                  className="flex items-center gap-3 py-3 group cursor-default"
+                >
+                  {/* Icon */}
+                  <MetricIcon className="w-3.5 h-3.5 text-slate-300 shrink-0 group-hover:text-slate-500 transition-colors" />
 
-                {/* Metric 5: 指令执行 */}
-                <div className="bg-gradient-to-br from-slate-50 to-indigo-50/80 border border-indigo-100 rounded-2xl p-4 flex flex-col shadow-sm group hover:-translate-y-1 transition-transform cursor-default relative overflow-hidden shrink-0">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-7 h-7 rounded-full bg-white shadow-sm flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
-                      <Cpu className="w-3.5 h-3.5" />
+                  {/* Label + Number */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9.5px] font-bold uppercase tracking-wider text-slate-400 truncate leading-none mb-1.5">
+                      {m.label}
+                    </p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-[19px] font-black font-mono tabular-nums leading-none text-slate-800">
+                        <AutoUpdatingNumber initialValue={m.init} stepSize={m.step} interval={m.ivl} />
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-400">{m.unit}</span>
                     </div>
-                    <div className="text-slate-500 text-[11px] font-bold leading-tight">串口指令<br/>执行次数</div>
                   </div>
-                  <div className="flex items-baseline gap-1 mt-auto">
-                    <span className="text-[22px] font-black tracking-tight font-mono text-indigo-600 drop-shadow-sm">
-                      <AutoUpdatingNumber initialValue={542880} stepSize={5} interval={800} />
+
+                  {/* Progress column */}
+                  <div className="w-12 shrink-0 flex flex-col items-end gap-1">
+                    <span className="text-[9px] font-black font-mono leading-none" style={{ color: m.color }}>
+                      {m.pct}%
                     </span>
-                    <span className="text-indigo-500/70 text-[10px] font-bold">次</span>
+                    <div className="w-full h-[3px] bg-slate-100 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: m.color }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${m.pct}%` }}
+                        transition={{ delay: 0.15 * i + 0.55, duration: 0.9, ease: 'easeOut' }}
+                      />
+                    </div>
                   </div>
-                </div>
-              </div>
+                </motion.div>
+                );
+              })}
             </div>
           </div>
 
@@ -1424,7 +1436,7 @@ export default function OperationDashboard() {
         {/* --- Bottom Section (Moved Modules + Rankings) --- */}
         <div className="flex gap-6 h-[400px] shrink-0">
           {/* Left: Lab Usage Analysis */}
-          <div className="w-1/3 bg-white border border-purple-100 rounded-2xl p-6 flex flex-col shadow-sm relative overflow-hidden shrink-0">
+          <div className="flex-1 min-w-0 bg-white border border-purple-100 rounded-2xl p-6 flex flex-col shadow-sm relative overflow-hidden">
             <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
               <Activity className="w-7 h-7 text-purple-600" /> 实训室使用分析
             </h2>
@@ -1459,7 +1471,7 @@ export default function OperationDashboard() {
           </div>
 
           {/* Center: AI Question Word Cloud */}
-          <div className="w-1/3 bg-white border border-purple-100 rounded-2xl p-5 flex flex-col shadow-sm relative overflow-hidden shrink-0">
+          <div className="flex-1 min-w-0 bg-white border border-purple-100 rounded-2xl p-5 flex flex-col shadow-sm relative overflow-hidden">
             <h2 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-purple-600" /> 硬件智能体问答热词
             </h2>
@@ -1470,7 +1482,7 @@ export default function OperationDashboard() {
               <QuestionWordCloud />
             </div>
           </div>
-          <div className="w-1/3 bg-white border border-purple-100 rounded-2xl p-5 flex flex-col shadow-sm relative overflow-hidden shrink-0">
+          <div className="flex-1 min-w-0 bg-white border border-purple-100 rounded-2xl p-5 flex flex-col shadow-sm relative overflow-hidden">
             {/* Header with Title and Simple Tabs */}
             <div className="flex justify-between items-center mb-6 shrink-0">
               <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">

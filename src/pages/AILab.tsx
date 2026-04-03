@@ -82,6 +82,11 @@ export default function AILab() {
   const [isAssetTreeOpen, setIsAssetTreeOpen] = useState(false);
   const [selectedAssetIds, setSelectedAssetIds] = useState<number[]>([]);
   const [expandedAssetIds, setExpandedAssetIds] = useState<number[]>([1, 4]);
+
+  // Terminal tree expand/collapse state — default expand root buildings
+  const [expandedTerminalAssetIds, setExpandedTerminalAssetIds] = useState<number[]>(
+    initialAssets.filter(a => a.parentId === null).map(a => a.id)
+  );
   const [expandedAssetTableIds, setExpandedAssetTableIds] = useState<number[]>([]);
 
   // Initialize expandedAssetTableIds to all parents to default expand the list
@@ -256,11 +261,7 @@ export default function AILab() {
 
   const renderMixedTreeForTerminals = (parentId: number | null = null, level = 0) => {
     const childAssets = assets.filter(a => a.parentId === parentId);
-    let childLabs: any[] = [];
-    if (parentId !== null) {
-      childLabs = labs.filter(l => l.assetId === parentId);
-    }
-    if (childAssets.length === 0 && childLabs.length === 0) return null;
+    if (childAssets.length === 0) return null;
 
     const getTerminalsForAsset = (id: number): number => {
       const descendants = [id, ...getDescendants(id)];
@@ -268,40 +269,59 @@ export default function AILab() {
       return terminalsList.filter(t => relatedLabNames.includes(t.lab)).length;
     };
 
-    const getTerminalsForLab = (labName: string): number => {
-      return terminalsList.filter(t => t.lab === labName).length;
-    };
-
     return (
-      <div className={cn("space-y-1", level > 0 && "ml-4 border-l border-slate-100 pl-2 mt-1")}>
+      <div className={cn("space-y-1", level > 0 && "ml-3 border-l border-slate-100 pl-2 mt-1")}>
         {childAssets.map(asset => {
           const isSelected = selectedTerminalTreeIds.includes(`a_${asset.id}`);
           const count = getTerminalsForAsset(asset.id);
+          const hasChildren = assets.some(a => a.parentId === asset.id);
+          const isExpanded = expandedTerminalAssetIds.includes(asset.id);
+
           return (
             <div key={`a_${asset.id}`}>
-              <div 
-                className={cn("flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors group", isSelected ? "bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] font-bold" : "hover:bg-slate-50 text-slate-600")}
+              <div
+                className={cn(
+                  "flex items-center gap-1.5 p-1.5 rounded-lg cursor-pointer transition-colors group",
+                  isSelected ? "bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] font-bold" : "hover:bg-slate-50 text-slate-600"
+                )}
                 onClick={() => toggleTerminalTreeSelection(`a_${asset.id}`)}
               >
-                <input type="checkbox" checked={isSelected} onChange={() => toggleTerminalTreeSelection(`a_${asset.id}`)} className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)] cursor-pointer" onClick={(e) => e.stopPropagation()}/>
-                <FolderTree className="w-3.5 h-3.5" />
+                {/* Expand / Collapse toggle */}
+                {hasChildren ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedTerminalAssetIds(prev =>
+                        prev.includes(asset.id) ? prev.filter(i => i !== asset.id) : [...prev, asset.id]
+                      );
+                    }}
+                    className="p-0.5 rounded hover:bg-slate-200 shrink-0 transition-colors"
+                  >
+                    {isExpanded
+                      ? <ChevronDown className="w-3.5 h-3.5" />
+                      : <ChevronRight className="w-3.5 h-3.5" />}
+                  </button>
+                ) : (
+                  <div className="w-5 shrink-0" />
+                )}
+
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleTerminalTreeSelection(`a_${asset.id}`)}
+                  className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)] cursor-pointer shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <FolderTree className="w-3.5 h-3.5 shrink-0" />
                 <span className="text-sm flex-1 truncate">{asset.name}</span>
-                <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-bold">{count}</span>
+                {count > 0 && (
+                  <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-bold shrink-0">{count}</span>
+                )}
               </div>
-              {renderMixedTreeForTerminals(asset.id, level + 1)}
+              {/* Recurse only when expanded */}
+              {hasChildren && isExpanded && renderMixedTreeForTerminals(asset.id, level + 1)}
             </div>
           );
-        })}
-        {childLabs.map(lab => {
-          const isSelected = selectedTerminalTreeIds.includes(`l_${lab.id}`);
-          const count = getTerminalsForLab(lab.name);
-          return (
-            <div key={`l_${lab.id}`} className={cn("flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors ml-4 group", isSelected ? "bg-[var(--brand-coral)]/10 text-[var(--brand-coral)] font-bold" : "hover:bg-slate-50 text-slate-500")} onClick={() => toggleTerminalTreeSelection(`l_${lab.id}`)}>
-              <input type="checkbox" checked={isSelected} onChange={() => toggleTerminalTreeSelection(`l_${lab.id}`)} className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--brand-coral)] focus:ring-[var(--brand-coral)]/50 cursor-pointer" onClick={(e) => e.stopPropagation()}/>
-              <span className="text-sm truncate opacity-90 flex-1">{lab.name}</span>
-              <span className="text-[10px] bg-slate-50 px-1.5 py-0.5 rounded text-slate-400 font-medium group-hover:text-[var(--brand-coral)] group-hover:bg-[var(--brand-coral)]/5">{count}</span>
-            </div>
-          )
         })}
       </div>
     );

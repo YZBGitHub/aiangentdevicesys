@@ -5,15 +5,15 @@ import { cn } from '../lib/utils';
 
 // Mock Data
 const newlandAgents = [
-  { id: 1, name: 'USR-TCP232-410s 串口终端助手', industry: '物联网', views: 12500, popularity: 98, updateTime: '2026-03-20', desc: '提供串口服务器的配置、调试与排错引导。', image: 'https://picsum.photos/seed/agent1/400/300' },
-  { id: 2, name: 'ECU-1251 工业网关智能体', industry: '工业互联网', views: 8900, popularity: 95, updateTime: '2026-03-25', desc: '工业协议转换与数据采集的智能辅助。', image: 'https://picsum.photos/seed/agent2/400/300' },
-  { id: 3, name: 'AI 视觉分拣台助手', industry: '人工智能', views: 15600, popularity: 99, updateTime: '2026-03-28', desc: '基于机器视觉的物品分拣实验全流程指导。', image: 'https://picsum.photos/seed/agent3/400/300' },
-  { id: 4, name: '智慧大棚环境监测智能体', industry: '智慧农业', views: 6700, popularity: 88, updateTime: '2026-03-15', desc: '温湿度、光照等传感器数据采集与联动控制。', image: 'https://picsum.photos/seed/agent4/400/300' },
+  { id: 1, name: 'USR-TCP232-410s 串口终端助手', industry: '物联网', views: 12500, popularity: 98, updateTime: '2026-03-20', desc: '提供串口服务器的配置、调试与排错引导。', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&h=300&q=80' },
+  { id: 2, name: 'ECU-1251 工业网关智能体', industry: '工业互联网', views: 8900, popularity: 95, updateTime: '2026-03-25', desc: '工业协议转换与数据采集的智能辅助。', image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=400&h=300&q=80' },
+  { id: 3, name: 'AI 视觉分拣台助手', industry: '人工智能', views: 15600, popularity: 99, updateTime: '2026-03-28', desc: '基于机器视觉的物品分拣实验全流程指导。', image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=400&h=300&q=80' },
+  { id: 4, name: '智慧大棚环境监测智能体', industry: '智慧农业', views: 6700, popularity: 88, updateTime: '2026-03-15', desc: '温湿度、光照等传感器数据采集与联动控制。', image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=400&h=300&q=80' },
 ];
 
 const myAgents = [
-  { id: 101, name: '自定义 PLC 调试助手', views: 120, popularity: 45, status: 'published', desc: '针对特定型号 PLC 的梯形图编程与调试辅助。', image: 'https://picsum.photos/seed/myagent1/400/300' },
-  { id: 102, name: 'Lora 节点配置向导', views: 0, popularity: 0, status: 'draft', desc: 'Lora 模块频段、速率等参数的快速配置。', image: 'https://picsum.photos/seed/myagent2/400/300' },
+  { id: 101, name: '自定义 PLC 调试助手', views: 120, popularity: 45, status: 'published', desc: '针对特定型号 PLC 的梯形图编程与调试辅助。', image: 'https://images.unsplash.com/photo-1565043666747-69f6646db940?auto=format&fit=crop&w=400&h=300&q=80' },
+  { id: 102, name: 'Lora 节点配置向导', views: 0, popularity: 0, status: 'draft', desc: 'Lora 模块频段、速率等参数的快速配置。', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&h=300&q=80' },
 ];
 
 const industries = ['全部', '物联网', '工业互联网', '人工智能', '智慧农业', '其他'];

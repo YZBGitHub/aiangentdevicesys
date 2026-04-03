@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(/usr/local/bin/npm install:*)",
+      "Read(//usr/local/bin/**)",
+      "Read(//opt/homebrew/**)",
+      "Bash(/usr/local/bin/node --version)",
+      "Bash(export PATH=\"/usr/local/bin:$PATH\")",
+      "Bash(npm --version)",
+      "WebFetch(domain:unsplash.com)",
+      "WebSearch",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s http://localhost:3001)",
+      "Bash(npm run:*)"
+    ]
+  }
+}
